@@ -1,0 +1,551 @@
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import {
+  View,
+  Text,
+  Pressable,
+  StyleSheet,
+  Platform,
+} from "react-native";
+import { router, useLocalSearchParams } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSequence,
+  withTiming,
+  withSpring,
+  FadeIn,
+} from "react-native-reanimated";
+import { LinearGradient } from "expo-linear-gradient";
+import Colors from "@/constants/colors";
+import RaceTrack from "@/components/RaceTrack";
+
+interface Question {
+  a: number;
+  b: number;
+  answer: number;
+}
+
+function generateQuestion(tables: number[]): Question {
+  const a = tables[Math.floor(Math.random() * tables.length)];
+  const b = Math.floor(Math.random() * 10) + 1;
+  return { a, b, answer: a * b };
+}
+
+export default function PracticeScreen() {
+  const insets = useSafeAreaInsets();
+  const params = useLocalSearchParams<{
+    tables: string;
+    mode: string;
+    questionCount: string;
+    timeLimit: string;
+  }>();
+
+  const tables = (params.tables || "1").split(",").map(Number);
+  const mode = params.mode || "questions";
+  const totalQuestions = parseInt(params.questionCount || "20", 10);
+  const timeLimit = parseInt(params.timeLimit || "0", 10);
+
+  const webTopInset = Platform.OS === "web" ? 67 : 0;
+
+  const [currentQuestion, setCurrentQuestion] = useState<Question>(() =>
+    generateQuestion(tables)
+  );
+  const [inputValue, setInputValue] = useState("");
+  const [questionsAnswered, setQuestionsAnswered] = useState(0);
+  const [correctAnswers, setCorrectAnswers] = useState(0);
+  const [wrongAnswers, setWrongAnswers] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [timeRemaining, setTimeRemaining] = useState(timeLimit);
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const [isFinished, setIsFinished] = useState(false);
+  const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
+  const [results, setResults] = useState<
+    { question: Question; userAnswer: number; correct: boolean }[]
+  >([]);
+
+  const startTime = useRef(Date.now());
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const shakeX = useSharedValue(0);
+  const scaleCorrect = useSharedValue(1);
+  const feedbackOpacity = useSharedValue(0);
+
+  const shakeStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: shakeX.value }],
+  }));
+
+  const correctPulseStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scaleCorrect.value }],
+  }));
+
+  const feedbackStyle = useAnimatedStyle(() => ({
+    opacity: feedbackOpacity.value,
+  }));
+
+  useEffect(() => {
+    timerRef.current = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - startTime.current) / 1000);
+      setElapsedTime(elapsed);
+
+      if (mode === "timed") {
+        const remaining = Math.max(0, timeLimit - elapsed);
+        setTimeRemaining(remaining);
+        if (remaining === 0) {
+          finishSession();
+        }
+      }
+    }, 200);
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, []);
+
+  const finishSession = useCallback(() => {
+    setIsFinished(true);
+    if (timerRef.current) clearInterval(timerRef.current);
+  }, []);
+
+  useEffect(() => {
+    if (isFinished) {
+      const finalElapsed = Math.floor((Date.now() - startTime.current) / 1000);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      router.replace({
+        pathname: "/results",
+        params: {
+          correct: correctAnswers.toString(),
+          wrong: wrongAnswers.toString(),
+          total: questionsAnswered.toString(),
+          elapsed: finalElapsed.toString(),
+          streak: streak.toString(),
+          results: JSON.stringify(results),
+          tables: params.tables,
+        },
+      });
+    }
+  }, [isFinished]);
+
+  const handleNumberPress = (num: string) => {
+    if (isFinished || feedback) return;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setInputValue((prev) => {
+      if (prev.length >= 3) return prev;
+      return prev + num;
+    });
+  };
+
+  const handleDelete = () => {
+    if (isFinished || feedback) return;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setInputValue((prev) => prev.slice(0, -1));
+  };
+
+  const handleSubmit = () => {
+    if (inputValue === "" || isFinished || feedback) return;
+
+    const userAnswer = parseInt(inputValue, 10);
+    const isCorrect = userAnswer === currentQuestion.answer;
+
+    const result = {
+      question: currentQuestion,
+      userAnswer,
+      correct: isCorrect,
+    };
+
+    setResults((prev) => [...prev, result]);
+
+    if (isCorrect) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      setCorrectAnswers((prev) => prev + 1);
+      setStreak((prev) => prev + 1);
+      setFeedback("correct");
+      scaleCorrect.value = withSequence(
+        withSpring(1.1, { damping: 4 }),
+        withSpring(1)
+      );
+      feedbackOpacity.value = withSequence(
+        withTiming(1, { duration: 100 }),
+        withTiming(0, { duration: 400 })
+      );
+    } else {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      setWrongAnswers((prev) => prev + 1);
+      setStreak(0);
+      setFeedback("wrong");
+      shakeX.value = withSequence(
+        withTiming(-8, { duration: 50 }),
+        withTiming(8, { duration: 50 }),
+        withTiming(-8, { duration: 50 }),
+        withTiming(8, { duration: 50 }),
+        withTiming(0, { duration: 50 })
+      );
+      feedbackOpacity.value = withSequence(
+        withTiming(1, { duration: 100 }),
+        withTiming(0, { duration: 600 })
+      );
+    }
+
+    const newTotal = questionsAnswered + 1;
+    setQuestionsAnswered(newTotal);
+
+    setTimeout(() => {
+      setFeedback(null);
+      setInputValue("");
+      if (mode === "questions" && newTotal >= totalQuestions) {
+        finishSession();
+      } else {
+        setCurrentQuestion(generateQuestion(tables));
+      }
+    }, isCorrect ? 400 : 700);
+  };
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, "0")}`;
+  };
+
+  const progressTotal = mode === "questions" ? totalQuestions : 1;
+  const progressCurrent =
+    mode === "questions"
+      ? questionsAnswered
+      : Math.min(1, elapsedTime / timeLimit);
+
+  const numpadRows = [
+    ["1", "2", "3"],
+    ["4", "5", "6"],
+    ["7", "8", "9"],
+    ["del", "0", "go"],
+  ];
+
+  return (
+    <View style={styles.screen}>
+      <LinearGradient
+        colors={[Colors.background, Colors.backgroundLight]}
+        style={StyleSheet.absoluteFill}
+      />
+
+      <View style={[styles.header, { paddingTop: (insets.top || webTopInset) + 8 }]}>
+        <Pressable
+          onPress={() => {
+            if (timerRef.current) clearInterval(timerRef.current);
+            router.back();
+          }}
+          style={styles.backButton}
+        >
+          <Ionicons name="close" size={22} color={Colors.textSecondary} />
+        </Pressable>
+
+        <View style={styles.statsRow}>
+          <View style={styles.statBadge}>
+            <Ionicons name="checkmark-circle" size={14} color={Colors.success} />
+            <Text style={styles.statText}>{correctAnswers}</Text>
+          </View>
+          <View style={styles.statBadge}>
+            <Ionicons name="close-circle" size={14} color={Colors.error} />
+            <Text style={styles.statText}>{wrongAnswers}</Text>
+          </View>
+          {streak >= 3 && (
+            <View style={[styles.statBadge, styles.streakBadge]}>
+              <MaterialCommunityIcons
+                name="fire"
+                size={14}
+                color={Colors.accent}
+              />
+              <Text style={[styles.statText, { color: Colors.accent }]}>
+                {streak}
+              </Text>
+            </View>
+          )}
+        </View>
+
+        <View style={styles.timerBadge}>
+          <Ionicons name="timer-outline" size={14} color={Colors.textSecondary} />
+          <Text style={styles.timerText}>
+            {mode === "timed"
+              ? formatTime(timeRemaining)
+              : formatTime(elapsedTime)}
+          </Text>
+        </View>
+      </View>
+
+      <RaceTrack
+        progress={mode === "questions" ? questionsAnswered : Math.floor((elapsedTime / timeLimit) * 100)}
+        total={mode === "questions" ? totalQuestions : 100}
+      />
+
+      {mode === "questions" && (
+        <Text style={styles.progressLabel}>
+          {questionsAnswered} / {totalQuestions}
+        </Text>
+      )}
+
+      <Animated.View style={[styles.questionArea, shakeStyle]}>
+        <Animated.View style={correctPulseStyle}>
+          <View style={styles.questionCard}>
+            <Text style={styles.questionText}>
+              {currentQuestion.a} x {currentQuestion.b}
+            </Text>
+            <View style={styles.equalsRow}>
+              <Text style={styles.equalsSign}>=</Text>
+              <View style={styles.answerBox}>
+                <Text
+                  style={[
+                    styles.answerText,
+                    inputValue === "" && styles.answerPlaceholder,
+                    feedback === "correct" && { color: Colors.success },
+                    feedback === "wrong" && { color: Colors.error },
+                  ]}
+                >
+                  {inputValue || "?"}
+                </Text>
+              </View>
+            </View>
+            {feedback === "wrong" && (
+              <Animated.Text
+                entering={FadeIn.duration(200)}
+                style={styles.correctAnswerHint}
+              >
+                Answer: {currentQuestion.answer}
+              </Animated.Text>
+            )}
+          </View>
+        </Animated.View>
+
+        <Animated.View style={[styles.feedbackOverlay, feedbackStyle]}>
+          {feedback === "correct" && (
+            <Ionicons name="checkmark-circle" size={48} color={Colors.success} />
+          )}
+          {feedback === "wrong" && (
+            <Ionicons name="close-circle" size={48} color={Colors.error} />
+          )}
+        </Animated.View>
+      </Animated.View>
+
+      <View style={[styles.numpad, { paddingBottom: (insets.bottom || (Platform.OS === "web" ? 34 : 0)) + 12 }]}>
+        {numpadRows.map((row, rowIdx) => (
+          <View key={rowIdx} style={styles.numpadRow}>
+            {row.map((key) => {
+              if (key === "del") {
+                return (
+                  <Pressable
+                    key={key}
+                    onPress={handleDelete}
+                    style={({ pressed }) => [
+                      styles.numpadKey,
+                      styles.numpadAction,
+                      pressed && styles.numpadKeyPressed,
+                    ]}
+                  >
+                    <Ionicons
+                      name="backspace-outline"
+                      size={24}
+                      color={Colors.textSecondary}
+                    />
+                  </Pressable>
+                );
+              }
+              if (key === "go") {
+                return (
+                  <Pressable
+                    key={key}
+                    onPress={handleSubmit}
+                    style={({ pressed }) => [
+                      styles.numpadKey,
+                      styles.numpadGo,
+                      pressed && styles.numpadGoPressed,
+                      inputValue === "" && styles.numpadGoDisabled,
+                    ]}
+                  >
+                    <Ionicons
+                      name="arrow-forward"
+                      size={24}
+                      color={inputValue === "" ? Colors.textMuted : Colors.white}
+                    />
+                  </Pressable>
+                );
+              }
+              return (
+                <Pressable
+                  key={key}
+                  onPress={() => handleNumberPress(key)}
+                  style={({ pressed }) => [
+                    styles.numpadKey,
+                    pressed && styles.numpadKeyPressed,
+                  ]}
+                >
+                  <Text style={styles.numpadKeyText}>{key}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: Colors.background,
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingBottom: 8,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.backgroundCard,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  statsRow: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  statBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: Colors.backgroundCard,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+  streakBadge: {
+    backgroundColor: "rgba(244, 162, 97, 0.15)",
+  },
+  statText: {
+    fontFamily: "Outfit_600SemiBold",
+    fontSize: 14,
+    color: Colors.text,
+  },
+  timerBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: Colors.backgroundCard,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+  timerText: {
+    fontFamily: "Outfit_600SemiBold",
+    fontSize: 14,
+    color: Colors.textSecondary,
+  },
+  progressLabel: {
+    fontFamily: "Outfit_500Medium",
+    fontSize: 13,
+    color: Colors.textMuted,
+    textAlign: "center",
+    marginTop: -4,
+    marginBottom: 4,
+  },
+  questionArea: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    position: "relative",
+  },
+  questionCard: {
+    alignItems: "center",
+    gap: 8,
+  },
+  questionText: {
+    fontFamily: "Outfit_800ExtraBold",
+    fontSize: 52,
+    color: Colors.text,
+    letterSpacing: 2,
+  },
+  equalsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  equalsSign: {
+    fontFamily: "Outfit_700Bold",
+    fontSize: 36,
+    color: Colors.textMuted,
+  },
+  answerBox: {
+    minWidth: 100,
+    borderBottomWidth: 3,
+    borderBottomColor: Colors.secondaryLight,
+    paddingHorizontal: 16,
+    paddingVertical: 4,
+    alignItems: "center",
+  },
+  answerText: {
+    fontFamily: "Outfit_800ExtraBold",
+    fontSize: 44,
+    color: Colors.accent,
+  },
+  answerPlaceholder: {
+    color: Colors.textMuted,
+    opacity: 0.4,
+  },
+  correctAnswerHint: {
+    fontFamily: "Outfit_500Medium",
+    fontSize: 16,
+    color: Colors.textMuted,
+    marginTop: 8,
+  },
+  feedbackOverlay: {
+    position: "absolute",
+    top: 10,
+    right: 30,
+  },
+  numpad: {
+    paddingHorizontal: 24,
+    gap: 8,
+  },
+  numpadRow: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  numpadKey: {
+    flex: 1,
+    height: 56,
+    borderRadius: 14,
+    backgroundColor: Colors.backgroundCard,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  numpadKeyPressed: {
+    backgroundColor: Colors.surfaceLight,
+    transform: [{ scale: 0.96 }],
+  },
+  numpadAction: {
+    backgroundColor: Colors.surface,
+  },
+  numpadGo: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  numpadGoPressed: {
+    backgroundColor: Colors.primaryDark,
+    transform: [{ scale: 0.96 }],
+  },
+  numpadGoDisabled: {
+    backgroundColor: Colors.surface,
+    borderColor: Colors.border,
+  },
+  numpadKeyText: {
+    fontFamily: "Outfit_600SemiBold",
+    fontSize: 24,
+    color: Colors.text,
+  },
+});
