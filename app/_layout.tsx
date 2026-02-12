@@ -24,6 +24,7 @@ function RootLayoutNav() {
       <Stack.Screen name="index" />
       <Stack.Screen name="practice" options={{ gestureEnabled: false }} />
       <Stack.Screen name="results" options={{ gestureEnabled: false, animation: "fade" }} />
+      <Stack.Screen name="history" />
     </Stack>
   );
 }

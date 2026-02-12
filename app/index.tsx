@@ -89,18 +89,30 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.heroSection}>
-          <View style={styles.iconRow}>
-            <MaterialCommunityIcons
-              name="car-sports"
-              size={36}
-              color={Colors.primary}
-            />
-            <MaterialCommunityIcons
-              name="multiplication"
-              size={24}
-              color={Colors.accent}
-              style={{ marginLeft: 8 }}
-            />
+          <View style={styles.topRow}>
+            <View style={{ width: 40 }} />
+            <View style={styles.iconRow}>
+              <MaterialCommunityIcons
+                name="car-sports"
+                size={36}
+                color={Colors.primary}
+              />
+              <MaterialCommunityIcons
+                name="multiplication"
+                size={24}
+                color={Colors.accent}
+                style={{ marginLeft: 8 }}
+              />
+            </View>
+            <Pressable
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                router.push("/history");
+              }}
+              style={styles.statsButton}
+            >
+              <Ionicons name="stats-chart" size={20} color={Colors.accent} />
+            </Pressable>
           </View>
           <Text style={styles.heroTitle}>Math Racer</Text>
           <Text style={styles.heroSubtitle}>
@@ -271,10 +283,24 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     gap: 6,
   },
+  topRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "100%",
+    marginBottom: 6,
+  },
+  statsButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.backgroundCard,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   iconRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 6,
   },
   heroTitle: {
     fontFamily: "Outfit_800ExtraBold",

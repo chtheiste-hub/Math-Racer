@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import Colors from "@/constants/colors";
+import { saveSessionResults } from "@/lib/stats-storage";
 
 export default function ResultsScreen() {
   const insets = useSafeAreaInsets();
@@ -35,6 +36,7 @@ export default function ResultsScreen() {
   const total = parseInt(params.total || "0", 10);
   const elapsed = parseInt(params.elapsed || "0", 10);
   const bestStreak = parseInt(params.streak || "0", 10);
+  const tablesUsed = (params.tables || "").split(",").map(Number).filter(Boolean);
 
   const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
 
@@ -49,6 +51,14 @@ export default function ResultsScreen() {
       return [];
     }
   }, [params.results]);
+
+  const savedRef = useRef(false);
+  useEffect(() => {
+    if (!savedRef.current && parsedResults.length > 0) {
+      savedRef.current = true;
+      saveSessionResults(parsedResults, tablesUsed, elapsed, bestStreak).catch(console.error);
+    }
+  }, [parsedResults]);
 
   const wrongResults = parsedResults.filter((r) => !r.correct);
 
@@ -68,6 +78,12 @@ export default function ResultsScreen() {
       }))
       .sort((a, b) => a.table - b.table);
   }, [parsedResults]);
+
+  const weakTables = useMemo(() => {
+    return tableBreakdown
+      .filter((t) => t.percentage < 80)
+      .sort((a, b) => a.percentage - b.percentage);
+  }, [tableBreakdown]);
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
@@ -92,6 +108,20 @@ export default function ResultsScreen() {
         tables: params.tables || "1,2,3,4,5,6,7,8,9,10",
         mode: "questions",
         questionCount: total.toString(),
+        timeLimit: "0",
+      },
+    });
+  };
+
+  const handlePracticeWeak = () => {
+    if (weakTables.length === 0) return;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    router.replace({
+      pathname: "/practice",
+      params: {
+        tables: weakTables.map((t) => t.table).join(","),
+        mode: "questions",
+        questionCount: "20",
         timeLimit: "0",
       },
     });
@@ -149,6 +179,36 @@ export default function ResultsScreen() {
             <Text style={styles.statLabel}>Best Streak</Text>
           </View>
         </Animated.View>
+
+        {weakTables.length > 0 && (
+          <Animated.View entering={FadeInDown.delay(250)} style={styles.focusSection}>
+            <View style={styles.focusHeader}>
+              <MaterialCommunityIcons name="target" size={20} color={Colors.accent} />
+              <Text style={styles.focusTitleText}>Focus Areas</Text>
+            </View>
+            <Text style={styles.focusSubtext}>
+              These tables need more practice:
+            </Text>
+            <View style={styles.focusChips}>
+              {weakTables.map((t) => (
+                <View key={t.table} style={styles.focusChip}>
+                  <Text style={styles.focusChipNumber}>{t.table}x</Text>
+                  <Text style={styles.focusChipPercent}>{t.percentage}%</Text>
+                </View>
+              ))}
+            </View>
+            <Pressable
+              onPress={handlePracticeWeak}
+              style={({ pressed }) => [
+                styles.focusButton,
+                pressed && { opacity: 0.85 },
+              ]}
+            >
+              <MaterialCommunityIcons name="target" size={16} color={Colors.white} />
+              <Text style={styles.focusButtonText}>Practice These Tables</Text>
+            </Pressable>
+          </Animated.View>
+        )}
 
         {tableBreakdown.length > 0 && (
           <Animated.View entering={FadeInDown.delay(300)} style={styles.section}>
@@ -307,6 +367,68 @@ const styles = StyleSheet.create({
     fontFamily: "Outfit_400Regular",
     fontSize: 12,
     color: Colors.textMuted,
+  },
+  focusSection: {
+    backgroundColor: Colors.backgroundCard,
+    borderRadius: 16,
+    padding: 16,
+    gap: 10,
+    borderWidth: 1,
+    borderColor: "rgba(244, 162, 97, 0.3)",
+  },
+  focusHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  focusTitleText: {
+    fontFamily: "Outfit_700Bold",
+    fontSize: 16,
+    color: Colors.accent,
+  },
+  focusSubtext: {
+    fontFamily: "Outfit_400Regular",
+    fontSize: 13,
+    color: Colors.textMuted,
+  },
+  focusChips: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  focusChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: "rgba(230, 57, 70, 0.15)",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 10,
+  },
+  focusChipNumber: {
+    fontFamily: "Outfit_700Bold",
+    fontSize: 14,
+    color: Colors.primary,
+  },
+  focusChipPercent: {
+    fontFamily: "Outfit_500Medium",
+    fontSize: 12,
+    color: Colors.textMuted,
+  },
+  focusButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    backgroundColor: Colors.accent,
+    paddingVertical: 10,
+    borderRadius: 10,
+    marginTop: 4,
+  },
+  focusButtonText: {
+    fontFamily: "Outfit_600SemiBold",
+    fontSize: 14,
+    color: Colors.white,
   },
   section: {
     gap: 12,
