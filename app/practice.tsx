@@ -20,7 +20,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 import Colors from "@/constants/colors";
-import RaceTrack from "@/components/RaceTrack";
+import RaceTrack, { type TrackerStyle } from "@/components/RaceTrack";
 
 interface Question {
   a: number;
@@ -41,12 +41,14 @@ export default function PracticeScreen() {
     mode: string;
     questionCount: string;
     timeLimit: string;
+    trackerStyle: string;
   }>();
 
   const tables = (params.tables || "1").split(",").map(Number);
   const mode = params.mode || "questions";
   const totalQuestions = parseInt(params.questionCount || "20", 10);
   const timeLimit = parseInt(params.timeLimit || "0", 10);
+  const trackerStyle = (params.trackerStyle || "racecar") as TrackerStyle;
 
   const webTopInset = Platform.OS === "web" ? 67 : 0;
 
@@ -275,6 +277,7 @@ export default function PracticeScreen() {
       <RaceTrack
         progress={mode === "questions" ? questionsAnswered : Math.floor((elapsedTime / timeLimit) * 100)}
         total={mode === "questions" ? totalQuestions : 100}
+        trackerStyle={trackerStyle}
       />
 
       {mode === "questions" && (

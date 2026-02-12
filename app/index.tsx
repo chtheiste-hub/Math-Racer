@@ -14,8 +14,14 @@ import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import Colors from "@/constants/colors";
 import TableSelector from "@/components/TableSelector";
+import type { TrackerStyle } from "@/components/RaceTrack";
 
 type SessionMode = "questions" | "timed";
+
+const TRACKER_OPTIONS: { value: TrackerStyle; icon: "car-sports" | "bird"; label: string }[] = [
+  { value: "racecar", icon: "car-sports", label: "Racecar" },
+  { value: "chicken", icon: "bird", label: "Chicken" },
+];
 
 const QUESTION_OPTIONS = [10, 15, 20, 30, 50];
 const TIME_OPTIONS = [
@@ -33,6 +39,7 @@ export default function HomeScreen() {
   const [mode, setMode] = useState<SessionMode>("questions");
   const [questionCount, setQuestionCount] = useState(20);
   const [timeLimit, setTimeLimit] = useState(120);
+  const [trackerStyle, setTrackerStyle] = useState<TrackerStyle>("racecar");
 
   const webTopInset = Platform.OS === "web" ? 67 : 0;
   const webBottomInset = Platform.OS === "web" ? 34 : 0;
@@ -67,6 +74,7 @@ export default function HomeScreen() {
         mode,
         questionCount: mode === "questions" ? questionCount.toString() : "999",
         timeLimit: mode === "timed" ? timeLimit.toString() : "0",
+        trackerStyle,
       },
     });
   };
@@ -231,6 +239,47 @@ export default function HomeScreen() {
               ))}
             </View>
           )}
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Progress Tracker</Text>
+          <View style={styles.trackerRow}>
+            {TRACKER_OPTIONS.map((opt) => {
+              const isActive = trackerStyle === opt.value;
+              return (
+                <Pressable
+                  key={opt.value}
+                  onPress={() => {
+                    setTrackerStyle(opt.value);
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  }}
+                  style={[
+                    styles.trackerCard,
+                    isActive && styles.trackerCardActive,
+                  ]}
+                >
+                  <MaterialCommunityIcons
+                    name={opt.icon}
+                    size={28}
+                    color={isActive ? Colors.accent : Colors.textMuted}
+                  />
+                  <Text
+                    style={[
+                      styles.trackerLabel,
+                      isActive && styles.trackerLabelActive,
+                    ]}
+                  >
+                    {opt.label}
+                  </Text>
+                  {isActive && (
+                    <View style={styles.trackerCheck}>
+                      <Ionicons name="checkmark" size={10} color={Colors.white} />
+                    </View>
+                  )}
+                </Pressable>
+              );
+            })}
+          </View>
         </View>
       </ScrollView>
 
@@ -403,5 +452,43 @@ const styles = StyleSheet.create({
     fontFamily: "Outfit_700Bold",
     fontSize: 18,
     color: Colors.white,
+  },
+  trackerRow: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  trackerCard: {
+    flex: 1,
+    alignItems: "center",
+    gap: 8,
+    paddingVertical: 16,
+    borderRadius: 14,
+    backgroundColor: Colors.backgroundCard,
+    borderWidth: 1.5,
+    borderColor: Colors.border,
+    position: "relative",
+  },
+  trackerCardActive: {
+    borderColor: Colors.accent,
+    backgroundColor: "rgba(244, 162, 97, 0.08)",
+  },
+  trackerLabel: {
+    fontFamily: "Outfit_600SemiBold",
+    fontSize: 13,
+    color: Colors.textMuted,
+  },
+  trackerLabelActive: {
+    color: Colors.accent,
+  },
+  trackerCheck: {
+    position: "absolute",
+    top: 6,
+    right: 6,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: Colors.accent,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
