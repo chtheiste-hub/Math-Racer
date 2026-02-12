@@ -12,15 +12,41 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
+import Svg, { Path, Circle, Ellipse } from "react-native-svg";
 import Colors from "@/constants/colors";
 import TableSelector from "@/components/TableSelector";
 import type { TrackerStyle } from "@/components/RaceTrack";
 
 type SessionMode = "questions" | "timed";
 
-const TRACKER_OPTIONS: { value: TrackerStyle; icon: "car-sports" | "bird"; label: string }[] = [
-  { value: "racecar", icon: "car-sports", label: "Racecar" },
-  { value: "chicken", icon: "bird", label: "Chicken" },
+function SmallHenIcon({ size = 28, color = "#999" }: { size?: number; color?: string }) {
+  const isAccent = color === Colors.accent;
+  const bodyColor = isAccent ? "#D4883E" : "#999";
+  const bellyColor = isAccent ? "#E8A94F" : "#AAA";
+  const beakColor = isAccent ? "#E07020" : "#888";
+  const combColor = isAccent ? "#E63946" : "#999";
+  const eyeColor = "#1A1A1A";
+  return (
+    <Svg width={size} height={size} viewBox="0 0 48 48">
+      <Ellipse cx="22" cy="30" rx="14" ry="12" fill={bodyColor} />
+      <Ellipse cx="22" cy="32" rx="11" ry="9" fill={bellyColor} />
+      <Path d="M8 34 Q4 38 6 42 Q8 40 10 38" fill={bodyColor} />
+      <Circle cx="32" cy="20" r="9" fill={bodyColor} />
+      <Circle cx="32" cy="20" r="7.5" fill={bellyColor} />
+      <Circle cx="35" cy="18" r="2" fill={eyeColor} />
+      <Circle cx="35.5" cy="17.5" r="0.6" fill="#FFFFFF" />
+      <Path d="M38 21 L44 20 L38 23 Z" fill={beakColor} />
+      <Path d="M30 12 Q32 6 34 8 Q33 11 31 13" fill={combColor} />
+      <Path d="M32 11 Q34 5 36 7 Q35 10 33 12" fill={combColor} />
+      <Path d="M16 40 L14 44 L16 43 L18 45 L20 43 L22 44 L20 40" fill={beakColor} />
+      <Path d="M24 40 L22 44 L24 43 L26 45 L28 43 L30 44 L28 40" fill={beakColor} />
+    </Svg>
+  );
+}
+
+const TRACKER_OPTIONS: { value: TrackerStyle; label: string }[] = [
+  { value: "racecar", label: "Racecar" },
+  { value: "chicken", label: "Hen" },
 ];
 
 const QUESTION_OPTIONS = [10, 15, 20, 30, 50];
@@ -258,11 +284,15 @@ export default function HomeScreen() {
                     isActive && styles.trackerCardActive,
                   ]}
                 >
-                  <MaterialCommunityIcons
-                    name={opt.icon}
-                    size={28}
-                    color={isActive ? Colors.accent : Colors.textMuted}
-                  />
+                  {opt.value === "chicken" ? (
+                    <SmallHenIcon size={28} color={isActive ? Colors.accent : Colors.textMuted} />
+                  ) : (
+                    <MaterialCommunityIcons
+                      name="car-sports"
+                      size={28}
+                      color={isActive ? Colors.accent : Colors.textMuted}
+                    />
+                  )}
                   <Text
                     style={[
                       styles.trackerLabel,
