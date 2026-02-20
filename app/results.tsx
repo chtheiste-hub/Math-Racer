@@ -14,7 +14,7 @@ import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import Colors from "@/constants/colors";
-import { saveSessionResults } from "@/lib/stats-storage";
+import { saveSessionResults, type PracticeType } from "@/lib/stats-storage";
 
 export default function ResultsScreen() {
   const insets = useSafeAreaInsets();
@@ -60,7 +60,7 @@ export default function ResultsScreen() {
   useEffect(() => {
     if (!savedRef.current && parsedResults.length > 0) {
       savedRef.current = true;
-      saveSessionResults(parsedResults, tablesUsed, elapsed, bestStreak).catch(console.error);
+      saveSessionResults(parsedResults, tablesUsed, elapsed, bestStreak, practiceType as PracticeType).catch(console.error);
     }
   }, [parsedResults]);
 

@@ -1,7 +1,13 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const STATS_KEY = "math_racer_stats";
+export type PracticeType = "multiplication" | "division" | "addition" | "subtraction";
+
+const STATS_KEY_PREFIX = "math_racer_stats";
 const SESSIONS_KEY = "math_racer_sessions";
+
+function statsKeyFor(practiceType: PracticeType): string {
+  return `${STATS_KEY_PREFIX}_${practiceType}`;
+}
 
 export interface TableStats {
   table: number;
@@ -13,6 +19,7 @@ export interface TableStats {
 export interface SessionRecord {
   id: string;
   date: string;
+  practiceType: PracticeType;
   tables: number[];
   totalQuestions: number;
   correctAnswers: number;
@@ -30,22 +37,37 @@ export interface AllTimeStats {
   totalCorrect: number;
 }
 
-async function loadStats(): Promise<AllTimeStats> {
+async function loadStats(practiceType: PracticeType): Promise<AllTimeStats> {
   try {
-    const raw = await AsyncStorage.getItem(STATS_KEY);
+    const raw = await AsyncStorage.getItem(statsKeyFor(practiceType));
     if (raw) return JSON.parse(raw);
+    if (practiceType === "multiplication") {
+      const legacy = await AsyncStorage.getItem("math_racer_stats");
+      if (legacy) {
+        const data = JSON.parse(legacy);
+        await AsyncStorage.setItem(statsKeyFor("multiplication"), legacy);
+        await AsyncStorage.removeItem("math_racer_stats");
+        return data;
+      }
+    }
   } catch {}
   return { tables: {}, totalSessions: 0, totalQuestions: 0, totalCorrect: 0 };
 }
 
-async function saveStats(stats: AllTimeStats): Promise<void> {
-  await AsyncStorage.setItem(STATS_KEY, JSON.stringify(stats));
+async function saveStats(practiceType: PracticeType, stats: AllTimeStats): Promise<void> {
+  await AsyncStorage.setItem(statsKeyFor(practiceType), JSON.stringify(stats));
 }
 
 async function loadSessions(): Promise<SessionRecord[]> {
   try {
     const raw = await AsyncStorage.getItem(SESSIONS_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed = JSON.parse(raw) as SessionRecord[];
+      return parsed.map((s) => ({
+        ...s,
+        practiceType: s.practiceType || "multiplication",
+      }));
+    }
   } catch {}
   return [];
 }
@@ -58,9 +80,10 @@ export async function saveSessionResults(
   results: { question: { a: number; b: number; answer: number }; userAnswer: number; correct: boolean }[],
   tables: number[],
   elapsed: number,
-  bestStreak: number
+  bestStreak: number,
+  practiceType: PracticeType = "multiplication"
 ): Promise<void> {
-  const stats = await loadStats();
+  const stats = await loadStats(practiceType);
   const sessions = await loadSessions();
 
   const now = new Date().toISOString();
@@ -68,7 +91,7 @@ export async function saveSessionResults(
 
   const tableBreakdown: Record<number, { correct: number; total: number }> = {};
   for (const r of results) {
-    const t = r.question.a;
+    const t = practiceType === "division" ? r.question.b : r.question.a;
     if (!tableBreakdown[t]) tableBreakdown[t] = { correct: 0, total: 0 };
     tableBreakdown[t].total++;
     if (r.correct) tableBreakdown[t].correct++;
@@ -102,6 +125,7 @@ export async function saveSessionResults(
   const session: SessionRecord = {
     id,
     date: now,
+    practiceType,
     tables,
     totalQuestions: results.length,
     correctAnswers: totalCorrect,
@@ -118,15 +142,25 @@ export async function saveSessionResults(
   sessions.unshift(session);
   if (sessions.length > 50) sessions.length = 50;
 
-  await Promise.all([saveStats(stats), saveSessions(sessions)]);
+  await Promise.all([saveStats(practiceType, stats), saveSessions(sessions)]);
 }
 
-export async function getStats(): Promise<AllTimeStats> {
-  return loadStats();
+export async function getStats(practiceType: PracticeType): Promise<AllTimeStats> {
+  return loadStats(practiceType);
 }
 
-export async function getSessions(): Promise<SessionRecord[]> {
-  return loadSessions();
+export async function getAllStats(): Promise<Record<PracticeType, AllTimeStats>> {
+  const types: PracticeType[] = ["multiplication", "division", "addition", "subtraction"];
+  const results = await Promise.all(types.map((t) => loadStats(t)));
+  const out: Record<string, AllTimeStats> = {};
+  types.forEach((t, i) => { out[t] = results[i]; });
+  return out as Record<PracticeType, AllTimeStats>;
+}
+
+export async function getSessions(practiceType?: PracticeType): Promise<SessionRecord[]> {
+  const all = await loadSessions();
+  if (!practiceType) return all;
+  return all.filter((s) => s.practiceType === practiceType);
 }
 
 export function getWeakTables(stats: AllTimeStats): { table: number; accuracy: number; trend: "improving" | "declining" | "stable" }[] {
@@ -158,8 +192,9 @@ export function getWeakTables(stats: AllTimeStats): { table: number; accuracy: n
 }
 
 export async function clearAllData(): Promise<void> {
+  const types: PracticeType[] = ["multiplication", "division", "addition", "subtraction"];
   await Promise.all([
-    AsyncStorage.removeItem(STATS_KEY),
+    ...types.map((t) => AsyncStorage.removeItem(statsKeyFor(t))),
     AsyncStorage.removeItem(SESSIONS_KEY),
   ]);
 }

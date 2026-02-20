@@ -22,7 +22,21 @@ import {
   clearAllData,
   type AllTimeStats,
   type SessionRecord,
+  type PracticeType,
 } from "@/lib/stats-storage";
+
+const PRACTICE_FILTERS: { value: PracticeType | "all"; label: string }[] = [
+  { value: "all", label: "All" },
+  { value: "multiplication", label: "\u00D7" },
+  { value: "division", label: "\u00F7" },
+];
+
+const OPERATOR_LABELS: Record<PracticeType, string> = {
+  multiplication: "\u00D7",
+  division: "\u00F7",
+  addition: "+",
+  subtraction: "\u2212",
+};
 
 function TrendIcon({ trend }: { trend: "improving" | "declining" | "stable" }) {
   if (trend === "improving")
@@ -65,19 +79,25 @@ function MiniSparkline({ data }: { data: number[] }) {
 
 export default function HistoryScreen() {
   const insets = useSafeAreaInsets();
-  const [stats, setStats] = useState<AllTimeStats | null>(null);
-  const [sessions, setSessions] = useState<SessionRecord[]>([]);
+  const [statsByType, setStatsByType] = useState<Record<string, AllTimeStats>>({});
+  const [allSessions, setAllSessions] = useState<SessionRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"tables" | "history">("tables");
+  const [practiceFilter, setPracticeFilter] = useState<PracticeType | "all">("all");
 
   const webTopInset = Platform.OS === "web" ? 67 : 0;
   const webBottomInset = Platform.OS === "web" ? 34 : 0;
 
   const loadData = useCallback(async () => {
     setLoading(true);
-    const [s, sess] = await Promise.all([getStats(), getSessions()]);
-    setStats(s);
-    setSessions(sess);
+    const types: PracticeType[] = ["multiplication", "division"];
+    const [multStats, divStats, sess] = await Promise.all([
+      getStats("multiplication"),
+      getStats("division"),
+      getSessions(),
+    ]);
+    setStatsByType({ multiplication: multStats, division: divStats });
+    setAllSessions(sess);
     setLoading(false);
   }, []);
 
@@ -85,10 +105,39 @@ export default function HistoryScreen() {
     loadData();
   }, []);
 
-  const weakTables = stats ? getWeakTables(stats) : [];
+  const currentStats: AllTimeStats | null = (() => {
+    if (practiceFilter === "all") {
+      const combined: AllTimeStats = { tables: {}, totalSessions: 0, totalQuestions: 0, totalCorrect: 0 };
+      for (const s of Object.values(statsByType)) {
+        combined.totalSessions += s.totalSessions;
+        combined.totalQuestions += s.totalQuestions;
+        combined.totalCorrect += s.totalCorrect;
+        for (const [tStr, td] of Object.entries(s.tables)) {
+          const t = parseInt(tStr, 10);
+          if (!combined.tables[t]) {
+            combined.tables[t] = { table: t, totalAttempts: 0, totalCorrect: 0, recentSessions: [] };
+          }
+          combined.tables[t].totalAttempts += td.totalAttempts;
+          combined.tables[t].totalCorrect += td.totalCorrect;
+          combined.tables[t].recentSessions = [
+            ...combined.tables[t].recentSessions,
+            ...td.recentSessions,
+          ].sort((a, b) => a.date.localeCompare(b.date)).slice(-20);
+        }
+      }
+      return combined;
+    }
+    return statsByType[practiceFilter] || null;
+  })();
+
+  const filteredSessions = practiceFilter === "all"
+    ? allSessions
+    : allSessions.filter((s) => s.practiceType === practiceFilter);
+
+  const weakTables = currentStats ? getWeakTables(currentStats) : [];
   const overallAccuracy =
-    stats && stats.totalQuestions > 0
-      ? Math.round((stats.totalCorrect / stats.totalQuestions) * 100)
+    currentStats && currentStats.totalQuestions > 0
+      ? Math.round((currentStats.totalCorrect / currentStats.totalQuestions) * 100)
       : 0;
 
   const formatDate = (iso: string) => {
@@ -114,10 +163,12 @@ export default function HistoryScreen() {
   const handleClearData = async () => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
     await clearAllData();
-    setStats(null);
-    setSessions([]);
+    setStatsByType({});
+    setAllSessions([]);
     await loadData();
   };
+
+  const tableOperator = practiceFilter === "all" ? "" : ` ${OPERATOR_LABELS[practiceFilter]}`;
 
   if (loading) {
     return (
@@ -127,7 +178,7 @@ export default function HistoryScreen() {
     );
   }
 
-  const hasData = stats && stats.totalSessions > 0;
+  const hasData = currentStats && currentStats.totalSessions > 0;
 
   return (
     <View style={styles.screen}>
@@ -144,13 +195,41 @@ export default function HistoryScreen() {
           <Ionicons name="chevron-back" size={22} color={Colors.textSecondary} />
         </Pressable>
         <Text style={styles.headerTitle}>Statistics</Text>
-        {hasData ? (
+        {(allSessions.length > 0) ? (
           <Pressable onPress={handleClearData} style={styles.clearButton}>
             <Ionicons name="trash-outline" size={18} color={Colors.textMuted} />
           </Pressable>
         ) : (
           <View style={{ width: 40 }} />
         )}
+      </View>
+
+      <View style={styles.filterRow}>
+        {PRACTICE_FILTERS.map((f) => {
+          const isActive = practiceFilter === f.value;
+          return (
+            <Pressable
+              key={f.value}
+              onPress={() => {
+                setPracticeFilter(f.value);
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              }}
+              style={[
+                styles.filterChip,
+                isActive && styles.filterChipActive,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.filterChipText,
+                  isActive && styles.filterChipTextActive,
+                ]}
+              >
+                {f.label}
+              </Text>
+            </Pressable>
+          );
+        })}
       </View>
 
       <ScrollView
@@ -170,7 +249,7 @@ export default function HistoryScreen() {
             />
             <Text style={styles.emptyTitle}>No data yet</Text>
             <Text style={styles.emptySubtext}>
-              Complete a practice session to see your statistics here
+              Complete a {practiceFilter === "all" ? "" : practiceFilter + " "}practice session to see your statistics here
             </Text>
             <Pressable
               onPress={() => router.replace("/")}
@@ -186,11 +265,11 @@ export default function HistoryScreen() {
           <>
             <Animated.View entering={FadeInDown.delay(100)} style={styles.overviewCards}>
               <View style={styles.overviewCard}>
-                <Text style={styles.overviewValue}>{stats!.totalSessions}</Text>
+                <Text style={styles.overviewValue}>{currentStats!.totalSessions}</Text>
                 <Text style={styles.overviewLabel}>Sessions</Text>
               </View>
               <View style={styles.overviewCard}>
-                <Text style={styles.overviewValue}>{stats!.totalQuestions}</Text>
+                <Text style={styles.overviewValue}>{currentStats!.totalQuestions}</Text>
                 <Text style={styles.overviewLabel}>Questions</Text>
               </View>
               <View style={styles.overviewCard}>
@@ -245,7 +324,7 @@ export default function HistoryScreen() {
             {activeTab === "tables" && (
               <Animated.View entering={FadeInDown.delay(150)} style={styles.tablesSection}>
                 {weakTables.map((item) => {
-                  const tableData = stats!.tables[item.table];
+                  const tableData = currentStats!.tables[item.table];
                   const sparkData = tableData?.recentSessions.slice(-8).map((s) => s.percentage) || [];
 
                   return (
@@ -265,7 +344,7 @@ export default function HistoryScreen() {
                         </View>
                         <View style={styles.tableStatsInfo}>
                           <View style={styles.tableStatsNameRow}>
-                            <Text style={styles.tableStatsName}>{item.table}x Table</Text>
+                            <Text style={styles.tableStatsName}>{item.table}{tableOperator} Table</Text>
                             <TrendIcon trend={item.trend} />
                           </View>
                           <Text style={styles.tableStatsDetail}>
@@ -307,101 +386,109 @@ export default function HistoryScreen() {
 
             {activeTab === "history" && (
               <Animated.View entering={FadeInDown.delay(150)} style={styles.historySection}>
-                {sessions.map((session) => (
-                  <View key={session.id} style={styles.sessionCard}>
-                    <View style={styles.sessionHeader}>
-                      <Text style={styles.sessionDate}>
-                        {formatDate(session.date)}
-                      </Text>
-                      <View style={[
-                        styles.sessionAccuracyBadge,
-                        {
-                          backgroundColor:
-                            session.accuracy >= 80
-                              ? "rgba(45, 198, 83, 0.15)"
-                              : session.accuracy >= 50
-                              ? "rgba(244, 162, 97, 0.15)"
-                              : "rgba(230, 57, 70, 0.15)",
-                        },
-                      ]}>
-                        <Text
-                          style={[
-                            styles.sessionAccuracyText,
-                            {
-                              color:
-                                session.accuracy >= 80
-                                  ? Colors.success
-                                  : session.accuracy >= 50
-                                  ? Colors.accent
-                                  : Colors.error,
-                            },
-                          ]}
-                        >
-                          {session.accuracy}%
-                        </Text>
-                      </View>
-                    </View>
-                    <View style={styles.sessionStats}>
-                      <View style={styles.sessionStat}>
-                        <Ionicons name="checkmark" size={12} color={Colors.success} />
-                        <Text style={styles.sessionStatText}>{session.correctAnswers}</Text>
-                      </View>
-                      <View style={styles.sessionStat}>
-                        <Ionicons name="close" size={12} color={Colors.error} />
-                        <Text style={styles.sessionStatText}>{session.wrongAnswers}</Text>
-                      </View>
-                      <View style={styles.sessionStat}>
-                        <Ionicons name="timer-outline" size={12} color={Colors.textMuted} />
-                        <Text style={styles.sessionStatText}>
-                          {formatTime(session.elapsed)}
-                        </Text>
-                      </View>
-                      <View style={styles.sessionStat}>
-                        <MaterialCommunityIcons name="fire" size={12} color={Colors.accent} />
-                        <Text style={styles.sessionStatText}>{session.bestStreak}</Text>
-                      </View>
-                    </View>
-                    <View style={styles.sessionTables}>
-                      {session.tableBreakdown.map((tb) => {
-                        const pct = tb.total > 0 ? Math.round((tb.correct / tb.total) * 100) : 0;
-                        return (
-                          <View
-                            key={tb.table}
+                {filteredSessions.map((session) => {
+                  const op = OPERATOR_LABELS[session.practiceType] || "\u00D7";
+                  return (
+                    <View key={session.id} style={styles.sessionCard}>
+                      <View style={styles.sessionHeader}>
+                        <View style={styles.sessionHeaderLeft}>
+                          <View style={styles.sessionTypeBadge}>
+                            <Text style={styles.sessionTypeText}>{op}</Text>
+                          </View>
+                          <Text style={styles.sessionDate}>
+                            {formatDate(session.date)}
+                          </Text>
+                        </View>
+                        <View style={[
+                          styles.sessionAccuracyBadge,
+                          {
+                            backgroundColor:
+                              session.accuracy >= 80
+                                ? "rgba(45, 198, 83, 0.15)"
+                                : session.accuracy >= 50
+                                ? "rgba(244, 162, 97, 0.15)"
+                                : "rgba(230, 57, 70, 0.15)",
+                          },
+                        ]}>
+                          <Text
                             style={[
-                              styles.sessionTableChip,
+                              styles.sessionAccuracyText,
                               {
-                                backgroundColor:
-                                  pct >= 80
-                                    ? "rgba(45, 198, 83, 0.1)"
-                                    : pct >= 50
-                                    ? "rgba(244, 162, 97, 0.1)"
-                                    : "rgba(230, 57, 70, 0.1)",
+                                color:
+                                  session.accuracy >= 80
+                                    ? Colors.success
+                                    : session.accuracy >= 50
+                                    ? Colors.accent
+                                    : Colors.error,
                               },
                             ]}
                           >
-                            <Text
+                            {session.accuracy}%
+                          </Text>
+                        </View>
+                      </View>
+                      <View style={styles.sessionStats}>
+                        <View style={styles.sessionStat}>
+                          <Ionicons name="checkmark" size={12} color={Colors.success} />
+                          <Text style={styles.sessionStatText}>{session.correctAnswers}</Text>
+                        </View>
+                        <View style={styles.sessionStat}>
+                          <Ionicons name="close" size={12} color={Colors.error} />
+                          <Text style={styles.sessionStatText}>{session.wrongAnswers}</Text>
+                        </View>
+                        <View style={styles.sessionStat}>
+                          <Ionicons name="timer-outline" size={12} color={Colors.textMuted} />
+                          <Text style={styles.sessionStatText}>
+                            {formatTime(session.elapsed)}
+                          </Text>
+                        </View>
+                        <View style={styles.sessionStat}>
+                          <MaterialCommunityIcons name="fire" size={12} color={Colors.accent} />
+                          <Text style={styles.sessionStatText}>{session.bestStreak}</Text>
+                        </View>
+                      </View>
+                      <View style={styles.sessionTables}>
+                        {session.tableBreakdown.map((tb) => {
+                          const pct = tb.total > 0 ? Math.round((tb.correct / tb.total) * 100) : 0;
+                          return (
+                            <View
+                              key={tb.table}
                               style={[
-                                styles.sessionTableText,
+                                styles.sessionTableChip,
                                 {
-                                  color:
+                                  backgroundColor:
                                     pct >= 80
-                                      ? Colors.success
+                                      ? "rgba(45, 198, 83, 0.1)"
                                       : pct >= 50
-                                      ? Colors.accent
-                                      : Colors.error,
+                                      ? "rgba(244, 162, 97, 0.1)"
+                                      : "rgba(230, 57, 70, 0.1)",
                                 },
                               ]}
                             >
-                              {tb.table}x {tb.correct}/{tb.total}
-                            </Text>
-                          </View>
-                        );
-                      })}
+                              <Text
+                                style={[
+                                  styles.sessionTableText,
+                                  {
+                                    color:
+                                      pct >= 80
+                                        ? Colors.success
+                                        : pct >= 50
+                                        ? Colors.accent
+                                        : Colors.error,
+                                  },
+                                ]}
+                              >
+                                {tb.table}{op} {tb.correct}/{tb.total}
+                              </Text>
+                            </View>
+                          );
+                        })}
+                      </View>
                     </View>
-                  </View>
-                ))}
+                  );
+                })}
 
-                {sessions.length === 0 && (
+                {filteredSessions.length === 0 && (
                   <View style={styles.noDataMessage}>
                     <MaterialCommunityIcons
                       name="history"
@@ -458,6 +545,32 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.backgroundCard,
     justifyContent: "center",
     alignItems: "center",
+  },
+  filterRow: {
+    flexDirection: "row",
+    paddingHorizontal: 20,
+    gap: 8,
+    paddingBottom: 12,
+  },
+  filterChip: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 10,
+    backgroundColor: Colors.backgroundCard,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  filterChipActive: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  filterChipText: {
+    fontFamily: "Outfit_600SemiBold",
+    fontSize: 14,
+    color: Colors.textMuted,
+  },
+  filterChipTextActive: {
+    color: Colors.white,
   },
   scrollView: {
     flex: 1,
@@ -628,6 +741,24 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+  },
+  sessionHeaderLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  sessionTypeBadge: {
+    width: 26,
+    height: 26,
+    borderRadius: 7,
+    backgroundColor: Colors.surface,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  sessionTypeText: {
+    fontFamily: "Outfit_700Bold",
+    fontSize: 14,
+    color: Colors.accent,
   },
   sessionDate: {
     fontFamily: "Outfit_500Medium",
