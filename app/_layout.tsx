@@ -22,6 +22,7 @@ function RootLayoutNav() {
   return (
     <Stack screenOptions={{ headerShown: false, animation: "slide_from_right" }}>
       <Stack.Screen name="index" />
+      <Stack.Screen name="multiplication" />
       <Stack.Screen name="practice" options={{ gestureEnabled: false }} />
       <Stack.Screen name="results" options={{ gestureEnabled: false, animation: "fade" }} />
       <Stack.Screen name="history" />
