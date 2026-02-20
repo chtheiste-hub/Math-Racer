@@ -26,7 +26,11 @@ export default function ResultsScreen() {
     streak: string;
     results: string;
     tables: string;
+    practiceType: string;
   }>();
+
+  const practiceType = params.practiceType || "multiplication";
+  const operatorSymbol = practiceType === "division" ? "\u00F7" : "x";
 
   const webTopInset = Platform.OS === "web" ? 67 : 0;
   const webBottomInset = Platform.OS === "web" ? 34 : 0;
@@ -249,7 +253,7 @@ export default function ResultsScreen() {
               {wrongResults.map((r, i) => (
                 <View key={i} style={styles.mistakeRow}>
                   <Text style={styles.mistakeQuestion}>
-                    {r.question.a} x {r.question.b}
+                    {r.question.a} {operatorSymbol} {r.question.b}
                   </Text>
                   <Text style={styles.mistakeWrong}>{r.userAnswer}</Text>
                   <Ionicons

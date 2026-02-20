@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -11,36 +11,65 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
+import Svg, { Path, Circle, Ellipse } from "react-native-svg";
 import Colors from "@/constants/colors";
+import type { TrackerStyle } from "@/components/RaceTrack";
+
+function SmallHenIcon({ size = 28, color = "#999" }: { size?: number; color?: string }) {
+  const isAccent = color === Colors.accent;
+  const bodyColor = isAccent ? "#D4883E" : "#999";
+  const bellyColor = isAccent ? "#E8A94F" : "#AAA";
+  const beakColor = isAccent ? "#E07020" : "#888";
+  const combColor = isAccent ? "#E63946" : "#999";
+  const eyeColor = "#1A1A1A";
+  return (
+    <Svg width={size} height={size} viewBox="0 0 48 48">
+      <Ellipse cx="22" cy="30" rx="14" ry="12" fill={bodyColor} />
+      <Ellipse cx="22" cy="32" rx="11" ry="9" fill={bellyColor} />
+      <Path d="M8 34 Q4 38 6 42 Q8 40 10 38" fill={bodyColor} />
+      <Circle cx="32" cy="20" r="9" fill={bodyColor} />
+      <Circle cx="32" cy="20" r="7.5" fill={bellyColor} />
+      <Circle cx="35" cy="18" r="2" fill={eyeColor} />
+      <Circle cx="35.5" cy="17.5" r="0.6" fill="#FFFFFF" />
+      <Path d="M38 21 L44 20 L38 23 Z" fill={beakColor} />
+      <Path d="M30 12 Q32 6 34 8 Q33 11 31 13" fill={combColor} />
+      <Path d="M32 11 Q34 5 36 7 Q35 10 33 12" fill={combColor} />
+      <Path d="M16 40 L14 44 L16 43 L18 45 L20 43 L22 44 L20 40" fill={beakColor} />
+      <Path d="M24 40 L22 44 L24 43 L26 45 L28 43 L30 44 L28 40" fill={beakColor} />
+    </Svg>
+  );
+}
+
+const TRACKER_OPTIONS: { value: TrackerStyle; label: string }[] = [
+  { value: "racecar", label: "Racecar" },
+  { value: "chicken", label: "Hen" },
+];
 
 type PracticeArea = {
   id: string;
   title: string;
   subtitle: string;
   icon: keyof typeof MaterialCommunityIcons.glyphMap;
-  route: string | null;
+  route: string;
   color: string;
-  available: boolean;
 };
 
 const PRACTICE_AREAS: PracticeArea[] = [
   {
     id: "multiplication",
     title: "Multiplication",
-    subtitle: "Master your times tables 1-10",
+    subtitle: "Master your times tables 1\u201310",
     icon: "multiplication",
     route: "/multiplication",
     color: Colors.primary,
-    available: true,
   },
   {
     id: "division",
     title: "Division",
-    subtitle: "Practice dividing numbers",
+    subtitle: "Divide within the 10\u00d7 tables",
     icon: "division",
-    route: null,
+    route: "/division",
     color: Colors.secondaryLight,
-    available: false,
   },
 ];
 
@@ -48,11 +77,11 @@ export default function StartScreen() {
   const insets = useSafeAreaInsets();
   const webTopInset = Platform.OS === "web" ? 67 : 0;
   const webBottomInset = Platform.OS === "web" ? 34 : 0;
+  const [trackerStyle, setTrackerStyle] = useState<TrackerStyle>("racecar");
 
   const handlePress = (area: PracticeArea) => {
-    if (!area.available || !area.route) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    router.push(area.route as any);
+    router.push({ pathname: area.route as any, params: { trackerStyle } });
   };
 
   return (
@@ -99,34 +128,68 @@ export default function StartScreen() {
               onPress={() => handlePress(area)}
               style={({ pressed }) => [
                 styles.card,
-                !area.available && styles.cardDisabled,
-                pressed && area.available && styles.cardPressed,
+                pressed && styles.cardPressed,
               ]}
             >
-              <View style={[styles.cardIconWrap, { backgroundColor: area.available ? area.color + "20" : Colors.backgroundCard }]}>
+              <View style={[styles.cardIconWrap, { backgroundColor: area.color + "20" }]}>
                 <MaterialCommunityIcons
                   name={area.icon}
                   size={32}
-                  color={area.available ? area.color : Colors.textMuted}
+                  color={area.color}
                 />
               </View>
               <View style={styles.cardText}>
-                <Text style={[styles.cardTitle, !area.available && styles.cardTitleDisabled]}>
-                  {area.title}
-                </Text>
-                <Text style={[styles.cardSubtitle, !area.available && styles.cardSubtitleDisabled]}>
-                  {area.subtitle}
-                </Text>
+                <Text style={styles.cardTitle}>{area.title}</Text>
+                <Text style={styles.cardSubtitle}>{area.subtitle}</Text>
               </View>
-              {area.available ? (
-                <Ionicons name="chevron-forward" size={22} color={Colors.textMuted} />
-              ) : (
-                <View style={styles.comingSoonBadge}>
-                  <Text style={styles.comingSoonText}>Soon</Text>
-                </View>
-              )}
+              <Ionicons name="chevron-forward" size={22} color={Colors.textMuted} />
             </Pressable>
           ))}
+        </View>
+
+        <View style={styles.trackerSection}>
+          <Text style={styles.sectionTitle}>Progress Tracker</Text>
+          <View style={styles.trackerRow}>
+            {TRACKER_OPTIONS.map((opt) => {
+              const isActive = trackerStyle === opt.value;
+              return (
+                <Pressable
+                  key={opt.value}
+                  onPress={() => {
+                    setTrackerStyle(opt.value);
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  }}
+                  style={[
+                    styles.trackerCard,
+                    isActive && styles.trackerCardActive,
+                  ]}
+                >
+                  {opt.value === "chicken" ? (
+                    <SmallHenIcon size={28} color={isActive ? Colors.accent : Colors.textMuted} />
+                  ) : (
+                    <MaterialCommunityIcons
+                      name="car-sports"
+                      size={28}
+                      color={isActive ? Colors.accent : Colors.textMuted}
+                    />
+                  )}
+                  <Text
+                    style={[
+                      styles.trackerLabel,
+                      isActive && styles.trackerLabelActive,
+                    ]}
+                  >
+                    {opt.label}
+                  </Text>
+                  {isActive && (
+                    <View style={styles.trackerCheck}>
+                      <Ionicons name="checkmark" size={10} color={Colors.white} />
+                    </View>
+                  )}
+                </Pressable>
+              );
+            })}
+          </View>
         </View>
       </View>
     </View>
@@ -141,7 +204,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 20,
-    gap: 40,
+    gap: 32,
   },
   header: {
     alignItems: "center",
@@ -187,9 +250,6 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: Colors.border,
   },
-  cardDisabled: {
-    opacity: 0.5,
-  },
   cardPressed: {
     opacity: 0.85,
     transform: [{ scale: 0.98 }],
@@ -210,28 +270,55 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: Colors.text,
   },
-  cardTitleDisabled: {
-    color: Colors.textMuted,
-  },
   cardSubtitle: {
     fontFamily: "Outfit_400Regular",
     fontSize: 13,
     color: Colors.textSecondary,
   },
-  cardSubtitleDisabled: {
-    color: Colors.textMuted,
+  trackerSection: {
+    gap: 12,
   },
-  comingSoonBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 10,
-    backgroundColor: Colors.surfaceLight,
-  },
-  comingSoonText: {
+  sectionTitle: {
     fontFamily: "Outfit_600SemiBold",
-    fontSize: 11,
+    fontSize: 16,
+    color: Colors.textSecondary,
+  },
+  trackerRow: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  trackerCard: {
+    flex: 1,
+    alignItems: "center",
+    gap: 8,
+    paddingVertical: 16,
+    borderRadius: 14,
+    backgroundColor: Colors.backgroundCard,
+    borderWidth: 1.5,
+    borderColor: Colors.border,
+    position: "relative",
+  },
+  trackerCardActive: {
+    borderColor: Colors.accent,
+    backgroundColor: "rgba(244, 162, 97, 0.08)",
+  },
+  trackerLabel: {
+    fontFamily: "Outfit_600SemiBold",
+    fontSize: 13,
     color: Colors.textMuted,
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
+  },
+  trackerLabelActive: {
+    color: Colors.accent,
+  },
+  trackerCheck: {
+    position: "absolute",
+    top: 6,
+    right: 6,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: Colors.accent,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

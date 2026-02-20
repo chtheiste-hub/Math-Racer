@@ -26,7 +26,7 @@ const TIME_OPTIONS = [
   { label: "5 min", value: 300 },
 ];
 
-export default function MultiplicationScreen() {
+export default function DivisionScreen() {
   const insets = useSafeAreaInsets();
   const routeParams = useLocalSearchParams<{ trackerStyle: string }>();
   const trackerStyle = (routeParams.trackerStyle || "racecar") as TrackerStyle;
@@ -71,7 +71,7 @@ export default function MultiplicationScreen() {
         questionCount: mode === "questions" ? questionCount.toString() : "999",
         timeLimit: mode === "timed" ? timeLimit.toString() : "0",
         trackerStyle,
-        practiceType: "multiplication",
+        practiceType: "division",
       },
     });
   };
@@ -100,15 +100,15 @@ export default function MultiplicationScreen() {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 router.back();
               }}
-              style={styles.statsButton}
+              style={styles.navButton}
             >
               <Ionicons name="arrow-back" size={20} color={Colors.accent} />
             </Pressable>
             <View style={styles.iconRow}>
               <MaterialCommunityIcons
-                name="multiplication"
+                name="division"
                 size={28}
-                color={Colors.accent}
+                color={Colors.secondaryLight}
               />
             </View>
             <Pressable
@@ -116,14 +116,14 @@ export default function MultiplicationScreen() {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 router.push("/history");
               }}
-              style={styles.statsButton}
+              style={styles.navButton}
             >
               <Ionicons name="stats-chart" size={20} color={Colors.accent} />
             </Pressable>
           </View>
-          <Text style={styles.heroTitle}>Multiplication</Text>
+          <Text style={styles.heroTitle}>Division</Text>
           <Text style={styles.heroSubtitle}>
-            Pick your tables and start practicing
+            Pick your divisors and start practicing
           </Text>
         </View>
 
@@ -239,7 +239,6 @@ export default function MultiplicationScreen() {
             </View>
           )}
         </View>
-
       </ScrollView>
 
       <View
@@ -256,7 +255,7 @@ export default function MultiplicationScreen() {
           ]}
         >
           <LinearGradient
-            colors={[Colors.primary, Colors.primaryDark]}
+            colors={[Colors.secondaryLight, Colors.secondary]}
             style={styles.startButtonGradient}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
@@ -298,7 +297,7 @@ const styles = StyleSheet.create({
     width: "100%",
     marginBottom: 6,
   },
-  statsButton: {
+  navButton: {
     width: 40,
     height: 40,
     borderRadius: 20,

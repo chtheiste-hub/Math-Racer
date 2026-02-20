@@ -28,10 +28,26 @@ interface Question {
   answer: number;
 }
 
-function generateQuestion(tables: number[]): Question {
+type PracticeType = "multiplication" | "division";
+
+function generateMultiplicationQuestion(tables: number[]): Question {
   const a = tables[Math.floor(Math.random() * tables.length)];
   const b = Math.floor(Math.random() * 10) + 1;
   return { a, b, answer: a * b };
+}
+
+function generateDivisionQuestion(tables: number[]): Question {
+  const divisor = tables[Math.floor(Math.random() * tables.length)];
+  const quotient = Math.floor(Math.random() * 10) + 1;
+  const dividend = divisor * quotient;
+  return { a: dividend, b: divisor, answer: quotient };
+}
+
+function generateQuestion(tables: number[], practiceType: PracticeType): Question {
+  if (practiceType === "division") {
+    return generateDivisionQuestion(tables);
+  }
+  return generateMultiplicationQuestion(tables);
 }
 
 export default function PracticeScreen() {
@@ -42,6 +58,7 @@ export default function PracticeScreen() {
     questionCount: string;
     timeLimit: string;
     trackerStyle: string;
+    practiceType: string;
   }>();
 
   const tables = (params.tables || "1").split(",").map(Number);
@@ -49,11 +66,12 @@ export default function PracticeScreen() {
   const totalQuestions = parseInt(params.questionCount || "20", 10);
   const timeLimit = parseInt(params.timeLimit || "0", 10);
   const trackerStyle = (params.trackerStyle || "racecar") as TrackerStyle;
+  const practiceType = (params.practiceType || "multiplication") as PracticeType;
 
   const webTopInset = Platform.OS === "web" ? 67 : 0;
 
   const [currentQuestion, setCurrentQuestion] = useState<Question>(() =>
-    generateQuestion(tables)
+    generateQuestion(tables, practiceType)
   );
   const [inputValue, setInputValue] = useState("");
   const [questionsAnswered, setQuestionsAnswered] = useState(0);
@@ -125,6 +143,7 @@ export default function PracticeScreen() {
           streak: streak.toString(),
           results: JSON.stringify(results),
           tables: params.tables,
+          practiceType,
         },
       });
     }
@@ -199,7 +218,7 @@ export default function PracticeScreen() {
       if (mode === "questions" && newTotal >= totalQuestions) {
         finishSession();
       } else {
-        setCurrentQuestion(generateQuestion(tables));
+        setCurrentQuestion(generateQuestion(tables, practiceType));
       }
     }, isCorrect ? 400 : 700);
   };
@@ -290,7 +309,7 @@ export default function PracticeScreen() {
         <Animated.View style={correctPulseStyle}>
           <View style={styles.questionCard}>
             <Text style={styles.questionText}>
-              {currentQuestion.a} x {currentQuestion.b}
+              {currentQuestion.a} {practiceType === "division" ? "\u00F7" : "x"} {currentQuestion.b}
             </Text>
             <View style={styles.equalsRow}>
               <Text style={styles.equalsSign}>=</Text>
