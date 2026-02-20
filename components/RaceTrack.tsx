@@ -95,24 +95,35 @@ function CarTrack({ characterStyle, progressBarStyle }: {
 function HenIcon({ size = 32 }: { size?: number }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 48 48">
-      <Ellipse cx="22" cy="30" rx="14" ry="12" fill="#D4883E" />
-      <Ellipse cx="22" cy="32" rx="11" ry="9" fill="#E8A94F" />
-      <Path d="M8 34 Q4 38 6 42 Q8 40 10 38" fill="#D4883E" />
-      <Path d="M6 35 Q2 39 5 43 Q7 41 9 39" fill="#C47A30" />
-      <Path d="M5 36 Q1 40 4 44" stroke="#B06A25" strokeWidth="0.5" fill="none" />
-      <Circle cx="32" cy="20" r="9" fill="#D4883E" />
-      <Circle cx="32" cy="20" r="7.5" fill="#E8A94F" />
-      <Circle cx="35" cy="18" r="2" fill="#1A1A1A" />
-      <Circle cx="35.5" cy="17.5" r="0.6" fill="#FFFFFF" />
-      <Path d="M38 21 L44 20 L38 23 Z" fill="#E07020" />
-      <Path d="M38 21.5 L42 21 L38 22.5 Z" fill="#CC5F15" />
-      <Path d="M30 12 Q32 6 34 8 Q33 11 31 13" fill="#E63946" />
-      <Path d="M32 11 Q34 5 36 7 Q35 10 33 12" fill="#CC2233" />
-      <Path d="M28 13 Q29 8 31 10 Q30 12 29 14" fill="#E63946" />
-      <Ellipse cx="18" cy="40" rx="3" ry="2" fill="#E07020" />
-      <Path d="M16 40 L14 44 L16 43 L18 45 L20 43 L22 44 L20 40" fill="#E07020" />
-      <Ellipse cx="26" cy="40" rx="3" ry="2" fill="#E07020" />
-      <Path d="M24 40 L22 44 L24 43 L26 45 L28 43 L30 44 L28 40" fill="#E07020" />
+      <Ellipse cx="22" cy="30" rx="14" ry="12" fill="#F5F5F0" />
+      <Ellipse cx="22" cy="32" rx="11" ry="9" fill="#FFFFFF" />
+      <Ellipse cx="20" cy="28" rx="8" ry="5" fill="#E8E8E3" opacity="0.4" />
+      <Path d="M8 28 Q5 26 7 24 Q9 25 11 27" fill="#F0F0EB" />
+      <Path d="M9 30 Q5 29 6 26 Q8 27 10 29" fill="#E8E8E3" />
+      <Path d="M10 32 Q6 32 7 29 Q9 30 11 31" fill="#F0F0EB" />
+      <Path d="M8 34 Q4 38 6 42 Q8 40 10 38" fill="#F0F0EB" />
+      <Path d="M6 35 Q2 39 5 43 Q7 41 9 39" fill="#E8E8E3" />
+      <Path d="M5 36 Q1 40 4 44" stroke="#D0D0CB" strokeWidth="0.5" fill="none" />
+      <Circle cx="32" cy="20" r="9" fill="#F5F5F0" />
+      <Circle cx="32" cy="20" r="7.5" fill="#FFFFFF" />
+      <Path d="M26 19 Q27 17 29 18" stroke="#E8E8E3" strokeWidth="0.5" fill="none" />
+      <Circle cx="35" cy="18" r="2.2" fill="#1A1A1A" />
+      <Circle cx="35.5" cy="17.3" r="0.7" fill="#FFFFFF" />
+      <Path d="M38 21 L44 20 L38 23 Z" fill="#E8A030" />
+      <Path d="M38 21.5 L42 21 L38 22.5 Z" fill="#D4901A" />
+      <Path d="M37 23 L38 23.5 L37 24" fill="#E8A030" />
+      <Path d="M30 12 Q31 5 33 7 Q32.5 10 31 13" fill="#E63946" />
+      <Path d="M32 11 Q33 4 35 6 Q34.5 9 33 12" fill="#CC2233" />
+      <Path d="M28 13 Q28.5 7 30 9 Q30 11 29 14" fill="#E63946" />
+      <Path d="M31 13 Q32 10 33.5 11 Q33 13 32 14" fill="#B01E2E" />
+      <Path d="M36 23 Q38 24 37 26 Q36 25 35 24" fill="#E63946" />
+      <Path d="M36.5 24 Q37.5 25 37 26" fill="#CC2233" />
+      <Ellipse cx="18" cy="40" rx="3" ry="1.5" fill="#E8A030" />
+      <Path d="M16 40 L14 44 L16 43 L18 45 L20 43 L22 44 L20 40" fill="#E8A030" />
+      <Path d="M15 44 L17 43.5 L19 45" stroke="#D4901A" strokeWidth="0.3" fill="none" />
+      <Ellipse cx="26" cy="40" rx="3" ry="1.5" fill="#E8A030" />
+      <Path d="M24 40 L22 44 L24 43 L26 45 L28 43 L30 44 L28 40" fill="#E8A030" />
+      <Path d="M23 44 L25 43.5 L27 45" stroke="#D4901A" strokeWidth="0.3" fill="none" />
     </Svg>
   );
 }

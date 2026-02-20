@@ -255,7 +255,7 @@ export default function DivisionScreen() {
           ]}
         >
           <LinearGradient
-            colors={[Colors.secondaryLight, Colors.secondary]}
+            colors={[Colors.primary, Colors.primaryDark]}
             style={styles.startButtonGradient}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}

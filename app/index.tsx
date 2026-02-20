@@ -17,23 +17,28 @@ import type { TrackerStyle } from "@/components/RaceTrack";
 
 function SmallHenIcon({ size = 28, color = "#999" }: { size?: number; color?: string }) {
   const isAccent = color === Colors.accent;
-  const bodyColor = isAccent ? "#D4883E" : "#999";
-  const bellyColor = isAccent ? "#E8A94F" : "#AAA";
-  const beakColor = isAccent ? "#E07020" : "#888";
+  const bodyColor = isAccent ? "#F5F5F0" : "#999";
+  const bellyColor = isAccent ? "#FFFFFF" : "#AAA";
+  const beakColor = isAccent ? "#E8A030" : "#888";
   const combColor = isAccent ? "#E63946" : "#999";
+  const wattleColor = isAccent ? "#CC2233" : "#888";
   const eyeColor = "#1A1A1A";
   return (
     <Svg width={size} height={size} viewBox="0 0 48 48">
       <Ellipse cx="22" cy="30" rx="14" ry="12" fill={bodyColor} />
       <Ellipse cx="22" cy="32" rx="11" ry="9" fill={bellyColor} />
+      <Path d="M8 28 Q5 26 7 24 Q9 25 11 27" fill={bodyColor} />
+      <Path d="M9 30 Q5 29 6 26 Q8 27 10 29" fill={isAccent ? "#E8E8E3" : "#888"} />
       <Path d="M8 34 Q4 38 6 42 Q8 40 10 38" fill={bodyColor} />
       <Circle cx="32" cy="20" r="9" fill={bodyColor} />
       <Circle cx="32" cy="20" r="7.5" fill={bellyColor} />
-      <Circle cx="35" cy="18" r="2" fill={eyeColor} />
-      <Circle cx="35.5" cy="17.5" r="0.6" fill="#FFFFFF" />
+      <Circle cx="35" cy="18" r="2.2" fill={eyeColor} />
+      <Circle cx="35.5" cy="17.3" r="0.7" fill="#FFFFFF" />
       <Path d="M38 21 L44 20 L38 23 Z" fill={beakColor} />
-      <Path d="M30 12 Q32 6 34 8 Q33 11 31 13" fill={combColor} />
-      <Path d="M32 11 Q34 5 36 7 Q35 10 33 12" fill={combColor} />
+      <Path d="M30 12 Q31 5 33 7 Q32.5 10 31 13" fill={combColor} />
+      <Path d="M32 11 Q33 4 35 6 Q34.5 9 33 12" fill={wattleColor} />
+      <Path d="M28 13 Q28.5 7 30 9 Q30 11 29 14" fill={combColor} />
+      <Path d="M36 23 Q38 24 37 26 Q36 25 35 24" fill={combColor} />
       <Path d="M16 40 L14 44 L16 43 L18 45 L20 43 L22 44 L20 40" fill={beakColor} />
       <Path d="M24 40 L22 44 L24 43 L26 45 L28 43 L30 44 L28 40" fill={beakColor} />
     </Svg>
