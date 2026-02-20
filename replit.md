@@ -13,8 +13,9 @@ Preferred communication style: Simple, everyday language.
 ### Frontend (Expo / React Native)
 
 - **Framework**: Expo SDK 54 with expo-router for file-based routing
-- **Screens**: 4 main screens managed by expo-router's Stack navigator:
-  - `index` — Home screen with table selection, mode picker (questions vs timed), and start button
+- **Screens**: 5 main screens managed by expo-router's Stack navigator:
+  - `index` — Start/landing page where users choose what to practice (multiplication available, division coming soon)
+  - `multiplication` — Multiplication setup screen with table selection, mode picker (questions vs timed), tracker style, and start button
   - `practice` — The active quiz screen with a race track progress visualization, number pad, and timer
   - `results` — Post-session results showing accuracy, streaks, time, and per-question breakdown
   - `history` — All-time stats, session history list, weak tables analysis, and sparkline trends
