@@ -104,31 +104,47 @@ export default function ResultsScreen() {
 
   const grade = getGrade();
 
+  const isAddition = practiceType === "addition";
+
   const handlePlayAgain = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-    router.replace({
-      pathname: "/practice",
-      params: {
-        tables: params.tables || "1,2,3,4,5,6,7,8,9,10",
-        mode: "questions",
-        questionCount: total.toString(),
-        timeLimit: "0",
-      },
-    });
+    if (isAddition) {
+      router.replace({
+        pathname: "/addition",
+      });
+    } else {
+      router.replace({
+        pathname: "/practice",
+        params: {
+          tables: params.tables || "1,2,3,4,5,6,7,8,9,10",
+          mode: "questions",
+          questionCount: total.toString(),
+          timeLimit: "0",
+          practiceType,
+        },
+      });
+    }
   };
 
   const handlePracticeWeak = () => {
     if (weakTables.length === 0) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-    router.replace({
-      pathname: "/practice",
-      params: {
-        tables: weakTables.map((t) => t.table).join(","),
-        mode: "questions",
-        questionCount: "20",
-        timeLimit: "0",
-      },
-    });
+    if (isAddition) {
+      router.replace({
+        pathname: "/addition",
+      });
+    } else {
+      router.replace({
+        pathname: "/practice",
+        params: {
+          tables: weakTables.map((t) => t.table).join(","),
+          mode: "questions",
+          questionCount: "20",
+          timeLimit: "0",
+          practiceType,
+        },
+      });
+    }
   };
 
   const handleGoHome = () => {
@@ -184,7 +200,7 @@ export default function ResultsScreen() {
           </View>
         </Animated.View>
 
-        {weakTables.length > 0 && (
+        {!isAddition && weakTables.length > 0 && (
           <Animated.View entering={FadeInDown.delay(250)} style={styles.focusSection}>
             <View style={styles.focusHeader}>
               <MaterialCommunityIcons name="target" size={20} color={Colors.accent} />
@@ -196,7 +212,7 @@ export default function ResultsScreen() {
             <View style={styles.focusChips}>
               {weakTables.map((t) => (
                 <View key={t.table} style={styles.focusChip}>
-                  <Text style={styles.focusChipNumber}>{t.table}x</Text>
+                  <Text style={styles.focusChipNumber}>{t.table}{operatorSymbol}</Text>
                   <Text style={styles.focusChipPercent}>{t.percentage}%</Text>
                 </View>
               ))}
@@ -214,13 +230,35 @@ export default function ResultsScreen() {
           </Animated.View>
         )}
 
-        {tableBreakdown.length > 0 && (
+        {isAddition && accuracy < 80 && (
+          <Animated.View entering={FadeInDown.delay(250)} style={styles.focusSection}>
+            <View style={styles.focusHeader}>
+              <MaterialCommunityIcons name="target" size={20} color={Colors.accent} />
+              <Text style={styles.focusTitleText}>Keep Practicing</Text>
+            </View>
+            <Text style={styles.focusSubtext}>
+              Try this category again to improve your score!
+            </Text>
+            <Pressable
+              onPress={handlePracticeWeak}
+              style={({ pressed }) => [
+                styles.focusButton,
+                pressed && { opacity: 0.85 },
+              ]}
+            >
+              <MaterialCommunityIcons name="restart" size={16} color={Colors.white} />
+              <Text style={styles.focusButtonText}>Practice Again</Text>
+            </Pressable>
+          </Animated.View>
+        )}
+
+        {!isAddition && tableBreakdown.length > 0 && (
           <Animated.View entering={FadeInDown.delay(300)} style={styles.section}>
             <Text style={styles.sectionTitle}>Per Table</Text>
             <View style={styles.tableBreakdownList}>
               {tableBreakdown.map((item) => (
                 <View key={item.table} style={styles.tableRow}>
-                  <Text style={styles.tableLabel}>{item.table}x</Text>
+                  <Text style={styles.tableLabel}>{item.table}{operatorSymbol}</Text>
                   <View style={styles.barContainer}>
                     <View
                       style={[
