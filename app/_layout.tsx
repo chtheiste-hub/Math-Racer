@@ -6,6 +6,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { queryClient } from "@/lib/query-client";
+import Colors from "@/constants/colors";
 import {
   useFonts,
   Outfit_400Regular,
@@ -20,7 +21,13 @@ SplashScreen.preventAutoHideAsync();
 
 function RootLayoutNav() {
   return (
-    <Stack screenOptions={{ headerShown: false, animation: "slide_from_right" }}>
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        animation: "slide_from_right",
+        contentStyle: { backgroundColor: Colors.background },
+      }}
+    >
       <Stack.Screen name="index" />
       <Stack.Screen name="multiplication" />
       <Stack.Screen name="division" />
