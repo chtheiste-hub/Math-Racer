@@ -15,6 +15,7 @@ import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import Colors from "@/constants/colors";
+import { fontScale, scale, maxContentWidth } from "@/lib/responsive";
 import {
   getStats,
   getSessions,
@@ -541,8 +542,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingBottom: 12,
+    paddingHorizontal: scale(16),
+    paddingBottom: scale(12),
   },
   backButton: {
     width: 40,
@@ -554,7 +555,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontFamily: "Outfit_700Bold",
-    fontSize: 20,
+    fontSize: fontScale(20),
     color: Colors.text,
   },
   clearButton: {
@@ -567,13 +568,13 @@ const styles = StyleSheet.create({
   },
   filterRow: {
     flexDirection: "row",
-    paddingHorizontal: 20,
-    gap: 8,
-    paddingBottom: 12,
+    paddingHorizontal: scale(20),
+    gap: scale(8),
+    paddingBottom: scale(12),
   },
   filterChip: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: scale(16),
+    paddingVertical: scale(8),
     borderRadius: 10,
     backgroundColor: Colors.backgroundCard,
     borderWidth: 1,
@@ -585,7 +586,7 @@ const styles = StyleSheet.create({
   },
   filterChipText: {
     fontFamily: "Outfit_600SemiBold",
-    fontSize: 14,
+    fontSize: fontScale(14),
     color: Colors.textMuted,
   },
   filterChipTextActive: {
@@ -595,8 +596,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    gap: 20,
-    paddingHorizontal: 20,
+    gap: scale(20),
+    paddingHorizontal: scale(20),
+    maxWidth: maxContentWidth,
+    width: "100%",
+    alignSelf: "center" as const,
   },
   emptyState: {
     alignItems: "center",
@@ -605,12 +609,12 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontFamily: "Outfit_700Bold",
-    fontSize: 20,
+    fontSize: fontScale(20),
     color: Colors.text,
   },
   emptySubtext: {
     fontFamily: "Outfit_400Regular",
-    fontSize: 14,
+    fontSize: fontScale(14),
     color: Colors.textMuted,
     textAlign: "center",
     paddingHorizontal: 40,
@@ -624,7 +628,7 @@ const styles = StyleSheet.create({
   },
   emptyButtonText: {
     fontFamily: "Outfit_600SemiBold",
-    fontSize: 15,
+    fontSize: fontScale(15),
     color: Colors.white,
   },
   overviewCards: {
@@ -643,12 +647,12 @@ const styles = StyleSheet.create({
   },
   overviewValue: {
     fontFamily: "Outfit_800ExtraBold",
-    fontSize: 22,
+    fontSize: fontScale(22),
     color: Colors.text,
   },
   overviewLabel: {
     fontFamily: "Outfit_400Regular",
-    fontSize: 11,
+    fontSize: fontScale(11),
     color: Colors.textMuted,
   },
   tabToggle: {

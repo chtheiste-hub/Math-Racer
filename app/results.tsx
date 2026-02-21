@@ -15,6 +15,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import Colors from "@/constants/colors";
 import { saveSessionResults, type PracticeType } from "@/lib/stats-storage";
+import { fontScale, scale, maxContentWidth } from "@/lib/responsive";
 
 export default function ResultsScreen() {
   const insets = useSafeAreaInsets();
@@ -377,18 +378,21 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    gap: 24,
-    paddingHorizontal: 20,
+    gap: scale(24),
+    paddingHorizontal: scale(20),
+    maxWidth: maxContentWidth,
+    width: "100%",
+    alignSelf: "center" as const,
   },
   heroSection: {
     alignItems: "center",
-    gap: 8,
-    paddingTop: 20,
+    gap: scale(8),
+    paddingTop: scale(20),
   },
   gradeCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: scale(80),
+    height: scale(80),
+    borderRadius: scale(40),
     borderWidth: 3,
     justifyContent: "center",
     alignItems: "center",
@@ -396,45 +400,45 @@ const styles = StyleSheet.create({
   },
   gradeLabel: {
     fontFamily: "Outfit_800ExtraBold",
-    fontSize: 28,
+    fontSize: fontScale(28),
     color: Colors.text,
   },
   accuracyText: {
     fontFamily: "Outfit_500Medium",
-    fontSize: 16,
+    fontSize: fontScale(16),
     color: Colors.textSecondary,
   },
   statsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 10,
+    gap: scale(10),
   },
   statCard: {
     flex: 1,
     minWidth: "45%",
     backgroundColor: Colors.backgroundCard,
-    borderRadius: 14,
-    padding: 14,
+    borderRadius: scale(14),
+    padding: scale(14),
     alignItems: "center",
-    gap: 6,
+    gap: scale(6),
     borderWidth: 1,
     borderColor: Colors.border,
   },
   statValue: {
     fontFamily: "Outfit_700Bold",
-    fontSize: 22,
+    fontSize: fontScale(22),
     color: Colors.text,
   },
   statLabel: {
     fontFamily: "Outfit_400Regular",
-    fontSize: 12,
+    fontSize: fontScale(12),
     color: Colors.textMuted,
   },
   focusSection: {
     backgroundColor: Colors.backgroundCard,
-    borderRadius: 16,
-    padding: 16,
-    gap: 10,
+    borderRadius: scale(16),
+    padding: scale(16),
+    gap: scale(10),
     borderWidth: 1,
     borderColor: "rgba(244, 162, 97, 0.3)",
   },
@@ -445,12 +449,12 @@ const styles = StyleSheet.create({
   },
   focusTitleText: {
     fontFamily: "Outfit_700Bold",
-    fontSize: 16,
+    fontSize: fontScale(16),
     color: Colors.accent,
   },
   focusSubtext: {
     fontFamily: "Outfit_400Regular",
-    fontSize: 13,
+    fontSize: fontScale(13),
     color: Colors.textMuted,
   },
   focusChips: {
@@ -497,7 +501,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontFamily: "Outfit_600SemiBold",
-    fontSize: 16,
+    fontSize: fontScale(16),
     color: Colors.textSecondary,
   },
   tableBreakdownList: {
@@ -569,14 +573,17 @@ const styles = StyleSheet.create({
     right: 0,
     flexDirection: "row",
     gap: 10,
-    paddingHorizontal: 20,
+    paddingHorizontal: scale(20),
     paddingTop: 12,
     backgroundColor: "rgba(11, 22, 34, 0.95)",
+    maxWidth: maxContentWidth,
+    width: "100%",
+    alignSelf: "center" as const,
   },
   secondaryButton: {
-    width: 52,
-    height: 52,
-    borderRadius: 14,
+    width: scale(52),
+    height: scale(52),
+    borderRadius: scale(14),
     backgroundColor: Colors.backgroundCard,
     justifyContent: "center",
     alignItems: "center",
@@ -593,12 +600,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    height: 52,
-    borderRadius: 14,
+    height: scale(52),
+    borderRadius: scale(14),
   },
   primaryButtonText: {
     fontFamily: "Outfit_700Bold",
-    fontSize: 17,
+    fontSize: fontScale(17),
     color: Colors.white,
   },
 });

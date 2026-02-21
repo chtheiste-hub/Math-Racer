@@ -15,6 +15,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import Colors from "@/constants/colors";
 import type { TrackerStyle } from "@/components/RaceTrack";
 import { loadPreferences, savePreferences, type SessionMode } from "@/lib/preferences";
+import { isTablet, fontScale, scale, maxContentWidth } from "@/lib/responsive";
 
 export type SubtractionCategory = "1" | "2" | "3" | "4" | "5";
 
@@ -348,25 +349,28 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    gap: 24,
+    gap: scale(24),
+    maxWidth: maxContentWidth,
+    width: "100%",
+    alignSelf: "center",
   },
   heroSection: {
     alignItems: "center",
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    gap: 6,
+    paddingHorizontal: scale(20),
+    paddingTop: scale(12),
+    gap: scale(6),
   },
   topRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     width: "100%",
-    marginBottom: 6,
+    marginBottom: scale(6),
   },
   navButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: scale(40),
+    height: scale(40),
+    borderRadius: scale(20),
     backgroundColor: Colors.backgroundCard,
     justifyContent: "center",
     alignItems: "center",
@@ -377,22 +381,22 @@ const styles = StyleSheet.create({
   },
   heroTitle: {
     fontFamily: "Outfit_800ExtraBold",
-    fontSize: 34,
+    fontSize: fontScale(34),
     color: Colors.text,
     letterSpacing: -0.5,
   },
   heroSubtitle: {
     fontFamily: "Outfit_400Regular",
-    fontSize: 15,
+    fontSize: fontScale(15),
     color: Colors.textMuted,
   },
   section: {
-    paddingHorizontal: 20,
-    gap: 12,
+    paddingHorizontal: scale(20),
+    gap: scale(12),
   },
   sectionTitle: {
     fontFamily: "Outfit_600SemiBold",
-    fontSize: 16,
+    fontSize: fontScale(16),
     color: Colors.textSecondary,
   },
   categoryList: {
@@ -402,8 +406,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: 16,
-    borderRadius: 14,
+    padding: scale(16),
+    borderRadius: scale(14),
     backgroundColor: Colors.backgroundCard,
     borderWidth: 1.5,
     borderColor: Colors.border,
@@ -415,7 +419,7 @@ const styles = StyleSheet.create({
   categoryLeft: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 14,
+    gap: scale(14),
     flex: 1,
   },
   categoryTextWrap: {
@@ -424,7 +428,7 @@ const styles = StyleSheet.create({
   },
   categoryTitle: {
     fontFamily: "Outfit_700Bold",
-    fontSize: 15,
+    fontSize: fontScale(15),
     color: Colors.text,
   },
   categoryTitleActive: {
@@ -432,12 +436,12 @@ const styles = StyleSheet.create({
   },
   categoryDesc: {
     fontFamily: "Outfit_400Regular",
-    fontSize: 12,
+    fontSize: fontScale(12),
     color: Colors.textMuted,
   },
   categoryExample: {
     fontFamily: "Outfit_500Medium",
-    fontSize: 12,
+    fontSize: fontScale(12),
     color: Colors.textSecondary,
     marginTop: 2,
   },
@@ -462,7 +466,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 6,
-    paddingVertical: 12,
+    paddingVertical: scale(12),
     borderRadius: 11,
   },
   modeButtonActive: {
@@ -470,7 +474,7 @@ const styles = StyleSheet.create({
   },
   modeButtonText: {
     fontFamily: "Outfit_500Medium",
-    fontSize: 14,
+    fontSize: fontScale(14),
     color: Colors.textMuted,
   },
   modeButtonTextActive: {
@@ -482,8 +486,8 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
   },
   optionChip: {
-    paddingHorizontal: 18,
-    paddingVertical: 10,
+    paddingHorizontal: scale(18),
+    paddingVertical: scale(10),
     borderRadius: 20,
     backgroundColor: Colors.backgroundCard,
     borderWidth: 1.5,
@@ -495,7 +499,7 @@ const styles = StyleSheet.create({
   },
   optionChipText: {
     fontFamily: "Outfit_600SemiBold",
-    fontSize: 14,
+    fontSize: fontScale(14),
     color: Colors.textMuted,
   },
   optionChipTextActive: {
@@ -506,9 +510,12 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    paddingHorizontal: 20,
+    paddingHorizontal: scale(20),
     paddingTop: 12,
     backgroundColor: "rgba(11, 22, 34, 0.95)",
+    maxWidth: maxContentWidth,
+    width: "100%",
+    alignSelf: "center",
   },
   startButton: {
     borderRadius: 16,
@@ -522,13 +529,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 10,
-    paddingVertical: 16,
+    gap: scale(10),
+    paddingVertical: scale(16),
     borderRadius: 16,
   },
   startButtonText: {
     fontFamily: "Outfit_700Bold",
-    fontSize: 18,
+    fontSize: fontScale(18),
     color: Colors.white,
   },
 });
