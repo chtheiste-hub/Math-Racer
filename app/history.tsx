@@ -108,14 +108,14 @@ export default function HistoryScreen() {
 
   const loadData = useCallback(async () => {
     setLoading(true);
-    const types: PracticeType[] = ["multiplication", "division", "addition"];
-    const [multStats, divStats, addStats, sess] = await Promise.all([
+    const [multStats, divStats, addStats, subStats, sess] = await Promise.all([
       getStats("multiplication"),
       getStats("division"),
       getStats("addition"),
+      getStats("subtraction"),
       getSessions(),
     ]);
-    setStatsByType({ multiplication: multStats, division: divStats, addition: addStats });
+    setStatsByType({ multiplication: multStats, division: divStats, addition: addStats, subtraction: subStats });
     setAllSessions(sess);
     setLoading(false);
   }, []);
