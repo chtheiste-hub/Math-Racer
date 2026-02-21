@@ -16,6 +16,7 @@ import Svg, { Path, Circle, Ellipse } from "react-native-svg";
 import Colors from "@/constants/colors";
 import type { TrackerStyle } from "@/components/RaceTrack";
 import { loadPreferences, savePreferences } from "@/lib/preferences";
+import { isTablet, fontScale, scale, maxContentWidth } from "@/lib/responsive";
 
 function SmallHenIcon({ size = 28, color = "#999" }: { size?: number; color?: string }) {
   const isAccent = color === Colors.accent;
@@ -239,49 +240,52 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    paddingHorizontal: 20,
-    gap: 32,
+    paddingHorizontal: scale(20),
+    gap: scale(32),
+    maxWidth: maxContentWidth,
+    width: "100%",
+    alignSelf: "center",
   },
   header: {
     alignItems: "center",
-    gap: 6,
+    gap: scale(6),
   },
   headerTop: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     width: "100%",
-    marginBottom: 12,
+    marginBottom: scale(12),
   },
   statsButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: scale(40),
+    height: scale(40),
+    borderRadius: scale(20),
     backgroundColor: Colors.backgroundCard,
     justifyContent: "center",
     alignItems: "center",
   },
   title: {
     fontFamily: "Outfit_800ExtraBold",
-    fontSize: 36,
+    fontSize: fontScale(36),
     color: Colors.text,
     letterSpacing: -0.5,
   },
   subtitle: {
     fontFamily: "Outfit_400Regular",
-    fontSize: 16,
+    fontSize: fontScale(16),
     color: Colors.textMuted,
     marginTop: 2,
   },
   cards: {
-    gap: 14,
+    gap: scale(14),
   },
   card: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 16,
-    padding: 18,
-    borderRadius: 16,
+    gap: scale(16),
+    padding: scale(18),
+    borderRadius: scale(16),
     backgroundColor: Colors.backgroundCard,
     borderWidth: 1.5,
     borderColor: Colors.border,
@@ -291,44 +295,44 @@ const styles = StyleSheet.create({
     transform: [{ scale: 0.98 }],
   },
   cardIconWrap: {
-    width: 56,
-    height: 56,
-    borderRadius: 14,
+    width: scale(56),
+    height: scale(56),
+    borderRadius: scale(14),
     justifyContent: "center",
     alignItems: "center",
   },
   cardText: {
     flex: 1,
-    gap: 3,
+    gap: scale(3),
   },
   cardTitle: {
     fontFamily: "Outfit_700Bold",
-    fontSize: 18,
+    fontSize: fontScale(18),
     color: Colors.text,
   },
   cardSubtitle: {
     fontFamily: "Outfit_400Regular",
-    fontSize: 13,
+    fontSize: fontScale(13),
     color: Colors.textSecondary,
   },
   trackerSection: {
-    gap: 12,
+    gap: scale(12),
   },
   sectionTitle: {
     fontFamily: "Outfit_600SemiBold",
-    fontSize: 16,
+    fontSize: fontScale(16),
     color: Colors.textSecondary,
   },
   trackerRow: {
     flexDirection: "row",
-    gap: 10,
+    gap: scale(10),
   },
   trackerCard: {
     flex: 1,
     alignItems: "center",
-    gap: 8,
-    paddingVertical: 16,
-    borderRadius: 14,
+    gap: scale(8),
+    paddingVertical: scale(16),
+    borderRadius: scale(14),
     backgroundColor: Colors.backgroundCard,
     borderWidth: 1.5,
     borderColor: Colors.border,
@@ -340,7 +344,7 @@ const styles = StyleSheet.create({
   },
   trackerLabel: {
     fontFamily: "Outfit_600SemiBold",
-    fontSize: 13,
+    fontSize: fontScale(13),
     color: Colors.textMuted,
   },
   trackerLabelActive: {
