@@ -130,7 +130,7 @@ export default function AdditionScreen() {
             <Pressable
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                router.replace("/");
+                router.back();
               }}
               style={styles.navButton}
             >
