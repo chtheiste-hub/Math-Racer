@@ -28,7 +28,7 @@ interface Question {
   answer: number;
 }
 
-type PracticeType = "multiplication" | "division";
+type PracticeType = "multiplication" | "division" | "addition";
 
 function generateMultiplicationQuestion(tables: number[]): Question {
   const a = tables[Math.floor(Math.random() * tables.length)];
@@ -43,9 +43,51 @@ function generateDivisionQuestion(tables: number[]): Question {
   return { a: dividend, b: divisor, answer: quotient };
 }
 
-function generateQuestion(tables: number[], practiceType: PracticeType): Question {
+function generateAdditionQuestion(category: string): Question {
+  switch (category) {
+    case "1": {
+      const answer = Math.floor(Math.random() * 10) + 1;
+      const a = Math.floor(Math.random() * answer) + 1;
+      const b = answer - a;
+      return { a: Math.max(a, 1), b: Math.max(b, 0), answer: a + Math.max(b, 0) };
+    }
+    case "2": {
+      const a = Math.floor(Math.random() * 9) + 1;
+      const b = 10 - a;
+      return { a, b, answer: b };
+    }
+    case "3": {
+      const a = Math.floor(Math.random() * 7) + 2;
+      const minB = 11 - a;
+      const maxB = Math.min(9, 19 - a);
+      const b = Math.floor(Math.random() * (maxB - minB + 1)) + minB;
+      return { a, b, answer: a + b };
+    }
+    case "4": {
+      const tens = (Math.floor(Math.random() * 8) + 1) * 10;
+      const ones = Math.floor(Math.random() * 9) + 1;
+      const a = tens + ones;
+      const nextTen = tens + 10;
+      const minB = nextTen - a;
+      const maxB = Math.min(9, nextTen + 9 - a);
+      const b = Math.floor(Math.random() * (maxB - minB + 1)) + minB;
+      return { a, b, answer: a + b };
+    }
+    case "5":
+    default: {
+      const a = Math.floor(Math.random() * 89) + 11;
+      const b = Math.floor(Math.random() * 89) + 11;
+      return { a, b, answer: a + b };
+    }
+  }
+}
+
+function generateQuestion(tables: number[], practiceType: PracticeType, additionCategory?: string): Question {
   if (practiceType === "division") {
     return generateDivisionQuestion(tables);
+  }
+  if (practiceType === "addition") {
+    return generateAdditionQuestion(additionCategory || "1");
   }
   return generateMultiplicationQuestion(tables);
 }
@@ -59,6 +101,7 @@ export default function PracticeScreen() {
     timeLimit: string;
     trackerStyle: string;
     practiceType: string;
+    additionCategory: string;
   }>();
 
   const tables = (params.tables || "1").split(",").map(Number);
@@ -67,11 +110,12 @@ export default function PracticeScreen() {
   const timeLimit = parseInt(params.timeLimit || "0", 10);
   const trackerStyle = (params.trackerStyle || "racecar") as TrackerStyle;
   const practiceType = (params.practiceType || "multiplication") as PracticeType;
+  const additionCategory = params.additionCategory || "1";
 
   const webTopInset = Platform.OS === "web" ? 67 : 0;
 
   const [currentQuestion, setCurrentQuestion] = useState<Question>(() =>
-    generateQuestion(tables, practiceType)
+    generateQuestion(tables, practiceType, additionCategory)
   );
   const [inputValue, setInputValue] = useState("");
   const [questionsAnswered, setQuestionsAnswered] = useState(0);
@@ -218,7 +262,7 @@ export default function PracticeScreen() {
       if (mode === "questions" && newTotal >= totalQuestions) {
         finishSession();
       } else {
-        setCurrentQuestion(generateQuestion(tables, practiceType));
+        setCurrentQuestion(generateQuestion(tables, practiceType, additionCategory));
       }
     }, isCorrect ? 400 : 700);
   };
@@ -309,7 +353,9 @@ export default function PracticeScreen() {
         <Animated.View style={correctPulseStyle}>
           <View style={styles.questionCard}>
             <Text style={styles.questionText}>
-              {currentQuestion.a} {practiceType === "division" ? "\u00F7" : "x"} {currentQuestion.b}
+              {practiceType === "addition" && additionCategory === "2"
+                ? `${currentQuestion.a} + ? = 10`
+                : `${currentQuestion.a} ${practiceType === "division" ? "\u00F7" : practiceType === "addition" ? "+" : "x"} ${currentQuestion.b}`}
             </Text>
             <View style={styles.equalsRow}>
               <Text style={styles.equalsSign}>=</Text>

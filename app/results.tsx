@@ -30,7 +30,7 @@ export default function ResultsScreen() {
   }>();
 
   const practiceType = params.practiceType || "multiplication";
-  const operatorSymbol = practiceType === "division" ? "\u00F7" : "x";
+  const operatorSymbol = practiceType === "division" ? "\u00F7" : practiceType === "addition" ? "+" : "x";
 
   const webTopInset = Platform.OS === "web" ? 67 : 0;
   const webBottomInset = Platform.OS === "web" ? 34 : 0;

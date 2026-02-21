@@ -29,6 +29,7 @@ const PRACTICE_FILTERS: { value: PracticeType | "all"; label: string }[] = [
   { value: "all", label: "All" },
   { value: "multiplication", label: "\u00D7" },
   { value: "division", label: "\u00F7" },
+  { value: "addition", label: "+" },
 ];
 
 const OPERATOR_LABELS: Record<PracticeType, string> = {
@@ -90,13 +91,14 @@ export default function HistoryScreen() {
 
   const loadData = useCallback(async () => {
     setLoading(true);
-    const types: PracticeType[] = ["multiplication", "division"];
-    const [multStats, divStats, sess] = await Promise.all([
+    const types: PracticeType[] = ["multiplication", "division", "addition"];
+    const [multStats, divStats, addStats, sess] = await Promise.all([
       getStats("multiplication"),
       getStats("division"),
+      getStats("addition"),
       getSessions(),
     ]);
-    setStatsByType({ multiplication: multStats, division: divStats });
+    setStatsByType({ multiplication: multStats, division: divStats, addition: addStats });
     setAllSessions(sess);
     setLoading(false);
   }, []);

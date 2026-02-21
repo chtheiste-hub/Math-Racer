@@ -4,6 +4,7 @@ import {
   Text,
   Pressable,
   StyleSheet,
+  ScrollView,
   Platform,
 } from "react-native";
 import { router } from "expo-router";
@@ -76,6 +77,14 @@ const PRACTICE_AREAS: PracticeArea[] = [
     route: "/division",
     color: Colors.secondaryLight,
   },
+  {
+    id: "addition",
+    title: "Addition",
+    subtitle: "From small numbers to double digits",
+    icon: "plus-circle-outline",
+    route: "/addition",
+    color: Colors.success,
+  },
 ];
 
 export default function StartScreen() {
@@ -95,14 +104,16 @@ export default function StartScreen() {
         colors={[Colors.background, Colors.backgroundLight, Colors.background]}
         style={StyleSheet.absoluteFill}
       />
-      <View
-        style={[
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={[
           styles.content,
           {
             paddingTop: (insets.top || webTopInset) + 20,
             paddingBottom: (insets.bottom || webBottomInset) + 20,
           },
         ]}
+        showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
           <View style={styles.headerTop}>
@@ -196,7 +207,7 @@ export default function StartScreen() {
             })}
           </View>
         </View>
-      </View>
+      </ScrollView>
     </View>
   );
 }
@@ -206,8 +217,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
-  content: {
+  scrollView: {
     flex: 1,
+  },
+  content: {
     paddingHorizontal: 20,
     gap: 32,
   },
