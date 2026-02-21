@@ -25,6 +25,7 @@ function RootLayoutNav() {
       <Stack.Screen name="multiplication" />
       <Stack.Screen name="division" />
       <Stack.Screen name="addition" />
+      <Stack.Screen name="subtraction" />
       <Stack.Screen name="practice" options={{ gestureEnabled: false }} />
       <Stack.Screen name="results" options={{ gestureEnabled: false, animation: "fade" }} />
       <Stack.Screen name="history" />

@@ -33,11 +33,20 @@ const ADDITION_CATEGORY_NAMES: Record<number, string> = {
   5: "Double Digits",
 };
 
+const SUBTRACTION_CATEGORY_NAMES: Record<number, string> = {
+  1: "Small Numbers",
+  2: "Subtract from 10",
+  3: "Passing 10",
+  4: "Passing Whole Tens",
+  5: "Double Digits",
+};
+
 const PRACTICE_FILTERS: { value: PracticeType | "all"; label: string }[] = [
   { value: "all", label: "All" },
   { value: "multiplication", label: "\u00D7" },
   { value: "division", label: "\u00F7" },
   { value: "addition", label: "+" },
+  { value: "subtraction", label: "\u2212" },
 ];
 
 const OPERATOR_LABELS: Record<PracticeType, string> = {
@@ -307,7 +316,7 @@ export default function HistoryScreen() {
                     activeTab === "tables" && styles.tabButtonTextActive,
                   ]}
                 >
-                  {practiceFilter === "addition" ? "Categories" : "Tables"}
+                  {practiceFilter === "addition" || practiceFilter === "subtraction" ? "Categories" : "Tables"}
                 </Text>
               </Pressable>
               <Pressable
@@ -354,7 +363,7 @@ export default function HistoryScreen() {
                         </View>
                         <View style={styles.tableStatsInfo}>
                           <View style={styles.tableStatsNameRow}>
-                            <Text style={styles.tableStatsName}>{practiceFilter === "addition" ? (ADDITION_CATEGORY_NAMES[item.table] || `Category ${item.table}`) : `${item.table}${tableOperator} Table`}</Text>
+                            <Text style={styles.tableStatsName}>{practiceFilter === "addition" ? (ADDITION_CATEGORY_NAMES[item.table] || `Category ${item.table}`) : practiceFilter === "subtraction" ? (SUBTRACTION_CATEGORY_NAMES[item.table] || `Category ${item.table}`) : `${item.table}${tableOperator} Table`}</Text>
                             <TrendIcon trend={item.trend} />
                           </View>
                           <Text style={styles.tableStatsDetail}>
@@ -387,7 +396,7 @@ export default function HistoryScreen() {
                   <View style={styles.noDataMessage}>
                     <Ionicons name="checkmark-circle" size={24} color={Colors.success} />
                     <Text style={styles.noDataText}>
-                      No practice data recorded yet for any {practiceFilter === "addition" ? "categories" : "tables"}
+                      No practice data recorded yet for any {practiceFilter === "addition" || practiceFilter === "subtraction" ? "categories" : "tables"}
                     </Text>
                   </View>
                 )}

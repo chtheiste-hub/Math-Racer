@@ -28,7 +28,7 @@ interface Question {
   answer: number;
 }
 
-type PracticeType = "multiplication" | "division" | "addition";
+type PracticeType = "multiplication" | "division" | "addition" | "subtraction";
 
 function generateMultiplicationQuestion(tables: number[]): Question {
   const a = tables[Math.floor(Math.random() * tables.length)];
@@ -82,12 +82,50 @@ function generateAdditionQuestion(category: string): Question {
   }
 }
 
-function generateQuestion(tables: number[], practiceType: PracticeType, additionCategory?: string): Question {
+function generateSubtractionQuestion(category: string): Question {
+  switch (category) {
+    case "1": {
+      const a = Math.floor(Math.random() * 9) + 2;
+      const b = Math.floor(Math.random() * (a - 1)) + 1;
+      return { a, b, answer: a - b };
+    }
+    case "2": {
+      const b = Math.floor(Math.random() * 9) + 1;
+      return { a: 10, b, answer: 10 - b };
+    }
+    case "3": {
+      const a = Math.floor(Math.random() * 9) + 11;
+      const onesA = a % 10;
+      const minB = onesA + 1;
+      const maxB = Math.min(9, a - 1);
+      const b = Math.floor(Math.random() * (maxB - minB + 1)) + minB;
+      return { a, b, answer: a - b };
+    }
+    case "4": {
+      const tens = (Math.floor(Math.random() * 8) + 2) * 10;
+      const ones = Math.floor(Math.random() * 8) + 1;
+      const a = tens + ones;
+      const b = ones + Math.floor(Math.random() * (10 - ones)) + 1;
+      return { a, b, answer: a - b };
+    }
+    case "5":
+    default: {
+      const b = Math.floor(Math.random() * 89) + 11;
+      const a = b + Math.floor(Math.random() * 89) + 11;
+      return { a, b, answer: a - b };
+    }
+  }
+}
+
+function generateQuestion(tables: number[], practiceType: PracticeType, categoryOverride?: string): Question {
   if (practiceType === "division") {
     return generateDivisionQuestion(tables);
   }
   if (practiceType === "addition") {
-    return generateAdditionQuestion(additionCategory || "1");
+    return generateAdditionQuestion(categoryOverride || "1");
+  }
+  if (practiceType === "subtraction") {
+    return generateSubtractionQuestion(categoryOverride || "1");
   }
   return generateMultiplicationQuestion(tables);
 }
@@ -102,6 +140,7 @@ export default function PracticeScreen() {
     trackerStyle: string;
     practiceType: string;
     additionCategory: string;
+    subtractionCategory: string;
   }>();
 
   const tables = (params.tables || "1").split(",").map(Number);
@@ -111,11 +150,13 @@ export default function PracticeScreen() {
   const trackerStyle = (params.trackerStyle || "racecar") as TrackerStyle;
   const practiceType = (params.practiceType || "multiplication") as PracticeType;
   const additionCategory = params.additionCategory || "1";
+  const subtractionCategory = params.subtractionCategory || "1";
+  const categoryOverride = practiceType === "subtraction" ? subtractionCategory : additionCategory;
 
   const webTopInset = Platform.OS === "web" ? 67 : 0;
 
   const [currentQuestion, setCurrentQuestion] = useState<Question>(() =>
-    generateQuestion(tables, practiceType, additionCategory)
+    generateQuestion(tables, practiceType, categoryOverride)
   );
   const [inputValue, setInputValue] = useState("");
   const [questionsAnswered, setQuestionsAnswered] = useState(0);
@@ -262,7 +303,7 @@ export default function PracticeScreen() {
       if (mode === "questions" && newTotal >= totalQuestions) {
         finishSession();
       } else {
-        setCurrentQuestion(generateQuestion(tables, practiceType, additionCategory));
+        setCurrentQuestion(generateQuestion(tables, practiceType, categoryOverride));
       }
     }, isCorrect ? 400 : 700);
   };
@@ -355,7 +396,7 @@ export default function PracticeScreen() {
             <Text style={styles.questionText}>
               {practiceType === "addition" && additionCategory === "2"
                 ? `${currentQuestion.a} + ? = 10`
-                : `${currentQuestion.a} ${practiceType === "division" ? "\u00F7" : practiceType === "addition" ? "+" : "x"} ${currentQuestion.b}`}
+                : `${currentQuestion.a} ${practiceType === "division" ? "\u00F7" : practiceType === "addition" ? "+" : practiceType === "subtraction" ? "\u2212" : "x"} ${currentQuestion.b}`}
             </Text>
             <View style={styles.equalsRow}>
               <Text style={styles.equalsSign}>=</Text>

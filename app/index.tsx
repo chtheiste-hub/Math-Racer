@@ -85,6 +85,14 @@ const PRACTICE_AREAS: PracticeArea[] = [
     route: "/addition",
     color: Colors.success,
   },
+  {
+    id: "subtraction",
+    title: "Subtraction",
+    subtitle: "From small numbers to double digits",
+    icon: "minus-circle-outline",
+    route: "/subtraction",
+    color: Colors.accent,
+  },
 ];
 
 export default function StartScreen() {

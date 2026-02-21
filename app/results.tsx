@@ -30,7 +30,7 @@ export default function ResultsScreen() {
   }>();
 
   const practiceType = params.practiceType || "multiplication";
-  const operatorSymbol = practiceType === "division" ? "\u00F7" : practiceType === "addition" ? "+" : "x";
+  const operatorSymbol = practiceType === "division" ? "\u00F7" : practiceType === "addition" ? "+" : practiceType === "subtraction" ? "\u2212" : "x";
 
   const webTopInset = Platform.OS === "web" ? 67 : 0;
   const webBottomInset = Platform.OS === "web" ? 34 : 0;
@@ -105,12 +105,14 @@ export default function ResultsScreen() {
   const grade = getGrade();
 
   const isAddition = practiceType === "addition";
+  const isSubtraction = practiceType === "subtraction";
+  const isCategoryBased = isAddition || isSubtraction;
 
   const handlePlayAgain = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-    if (isAddition) {
+    if (isCategoryBased) {
       router.replace({
-        pathname: "/addition",
+        pathname: isSubtraction ? "/subtraction" : "/addition",
       });
     } else {
       router.replace({
@@ -127,13 +129,13 @@ export default function ResultsScreen() {
   };
 
   const handlePracticeWeak = () => {
-    if (weakTables.length === 0) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-    if (isAddition) {
+    if (isCategoryBased) {
       router.replace({
-        pathname: "/addition",
+        pathname: isSubtraction ? "/subtraction" : "/addition",
       });
     } else {
+      if (weakTables.length === 0) return;
       router.replace({
         pathname: "/practice",
         params: {
@@ -200,7 +202,7 @@ export default function ResultsScreen() {
           </View>
         </Animated.View>
 
-        {!isAddition && weakTables.length > 0 && (
+        {!isCategoryBased && weakTables.length > 0 && (
           <Animated.View entering={FadeInDown.delay(250)} style={styles.focusSection}>
             <View style={styles.focusHeader}>
               <MaterialCommunityIcons name="target" size={20} color={Colors.accent} />
@@ -230,7 +232,7 @@ export default function ResultsScreen() {
           </Animated.View>
         )}
 
-        {isAddition && accuracy < 80 && (
+        {isCategoryBased && accuracy < 80 && (
           <Animated.View entering={FadeInDown.delay(250)} style={styles.focusSection}>
             <View style={styles.focusHeader}>
               <MaterialCommunityIcons name="target" size={20} color={Colors.accent} />
@@ -252,7 +254,7 @@ export default function ResultsScreen() {
           </Animated.View>
         )}
 
-        {!isAddition && tableBreakdown.length > 0 && (
+        {!isCategoryBased && tableBreakdown.length > 0 && (
           <Animated.View entering={FadeInDown.delay(300)} style={styles.section}>
             <Text style={styles.sectionTitle}>Per Table</Text>
             <View style={styles.tableBreakdownList}>

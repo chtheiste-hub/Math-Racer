@@ -92,7 +92,7 @@ export async function saveSessionResults(
   const tableBreakdown: Record<number, { correct: number; total: number }> = {};
   for (const r of results) {
     const t = practiceType === "division" ? r.question.b
-      : practiceType === "addition" ? tables[0]
+      : (practiceType === "addition" || practiceType === "subtraction") ? tables[0]
       : r.question.a;
     if (!tableBreakdown[t]) tableBreakdown[t] = { correct: 0, total: 0 };
     tableBreakdown[t].total++;
