@@ -2,7 +2,7 @@
 
 ## Overview
 
-Math Racer is a mobile-first math practice app built with Expo (React Native) supporting both multiplication and division. Users select a practice type from the landing page, choose which tables to practice (1–10), pick a session mode (fixed number of questions or timed), and then answer problems in a racing-themed interface with animated progress trackers (racecar or hen). The app tracks performance with detailed statistics, session history, table-by-table breakdowns, and trend analysis. It includes an Express backend server, though the core game logic and stats are handled client-side with AsyncStorage.
+Math Racer is a mobile-first math practice app built with Expo (React Native) supporting multiplication, division, addition, and subtraction. Users select a practice type from the landing page. For multiplication/division, they choose tables 1–10; for addition/subtraction, they choose from 5 difficulty categories. Users pick a session mode (fixed number of questions or timed), and then answer problems in a racing-themed interface with animated progress trackers (racecar or hen). The app tracks performance with detailed statistics, session history, table/category breakdowns, and trend analysis. It includes an Express backend server, though the core game logic and stats are handled client-side with AsyncStorage.
 
 ## User Preferences
 
@@ -13,13 +13,15 @@ Preferred communication style: Simple, everyday language.
 ### Frontend (Expo / React Native)
 
 - **Framework**: Expo SDK 54 with expo-router for file-based routing
-- **Screens**: 5 main screens managed by expo-router's Stack navigator:
-  - `index` — Start/landing page where users choose what to practice (multiplication or division) and select their progress tracker style (racecar or hen)
+- **Screens**: 7 main screens managed by expo-router's Stack navigator:
+  - `index` — Start/landing page where users choose what to practice (multiplication, division, addition, subtraction) and select their progress tracker style (racecar or hen)
   - `multiplication` — Multiplication setup screen with table selection, mode picker (questions vs timed), and start button
   - `division` — Division setup screen with table selection, mode picker (questions vs timed), and start button
+  - `addition` — Addition setup screen with 5 difficulty categories, mode picker, and start button
+  - `subtraction` — Subtraction setup screen with 5 difficulty categories, mode picker, and start button
   - `practice` — The active quiz screen with a race track progress visualization, number pad, and timer
   - `results` — Post-session results showing accuracy, streaks, time, and per-question breakdown
-  - `history` — All-time stats, session history list, weak tables analysis, and sparkline trends
+  - `history` — All-time stats, session history list, weak tables/categories analysis, and sparkline trends
 - **Styling**: Custom color theme in `constants/colors.ts` with a dark racing aesthetic. Uses `expo-linear-gradient` for gradient backgrounds.
 - **Fonts**: Outfit font family (400–800 weights) via `@expo-google-fonts/outfit`
 - **Animations**: `react-native-reanimated` for animated transitions, shake effects on wrong answers, fade-ins, and the race car progress bar
