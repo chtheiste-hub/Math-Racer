@@ -22,6 +22,7 @@ import Animated, {
 import { LinearGradient } from "expo-linear-gradient";
 import Colors from "@/constants/colors";
 import RaceTrack, { type TrackerStyle } from "@/components/RaceTrack";
+import { WebSlideView } from "@/lib/web-slide";
 
 interface Question {
   a: number;
@@ -349,7 +350,7 @@ export default function PracticeScreen() {
   ];
 
   return (
-    <View style={styles.screen}>
+    <WebSlideView style={styles.screen}>
       <LinearGradient
         colors={[Colors.background, Colors.backgroundLight]}
         style={StyleSheet.absoluteFill}
@@ -514,7 +515,7 @@ export default function PracticeScreen() {
           </View>
         ))}
       </View>
-    </View>
+    </WebSlideView>
   );
 }
 

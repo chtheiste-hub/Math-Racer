@@ -6,6 +6,7 @@ import {
   StyleSheet,
   ScrollView,
   Platform,
+  Animated,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -16,6 +17,7 @@ import Colors from "@/constants/colors";
 import type { TrackerStyle } from "@/components/RaceTrack";
 import { loadPreferences, savePreferences, type SessionMode } from "@/lib/preferences";
 import { isTablet, fontScale, scale, maxContentWidth } from "@/lib/responsive";
+import { useWebSlideTransition } from "@/lib/web-slide";
 
 export type AdditionCategory = "1" | "2" | "3" | "4" | "5";
 
@@ -89,6 +91,8 @@ export default function AdditionScreen() {
     if (prefsLoaded) savePreferences({ mode, questionCount, timeLimit });
   }, [mode, questionCount, timeLimit, prefsLoaded]);
 
+  const { slideStyle, animateOut } = useWebSlideTransition();
+
   const webTopInset = Platform.OS === "web" ? 67 : 0;
   const webBottomInset = Platform.OS === "web" ? 34 : 0;
 
@@ -109,7 +113,7 @@ export default function AdditionScreen() {
   };
 
   return (
-    <View style={styles.screen}>
+    <Animated.View style={[styles.screen, slideStyle]}>
       <LinearGradient
         colors={[Colors.background, Colors.backgroundLight, Colors.background]}
         style={StyleSheet.absoluteFill}
@@ -128,8 +132,9 @@ export default function AdditionScreen() {
         <View style={styles.heroSection}>
           <View style={styles.topRow}>
             <Pressable
-              onPress={() => {
+              onPress={async () => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                await animateOut();
                 router.back();
               }}
               style={styles.navButton}
@@ -336,7 +341,7 @@ export default function AdditionScreen() {
           </LinearGradient>
         </Pressable>
       </View>
-    </View>
+    </Animated.View>
   );
 }
 

@@ -14,6 +14,7 @@ import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import Colors from "@/constants/colors";
+import { WebSlideView } from "@/lib/web-slide";
 import { saveSessionResults, type PracticeType } from "@/lib/stats-storage";
 import { fontScale, scale, maxContentWidth } from "@/lib/responsive";
 
@@ -165,7 +166,7 @@ export default function ResultsScreen() {
   };
 
   return (
-    <View style={styles.screen}>
+    <WebSlideView style={styles.screen}>
       <LinearGradient
         colors={[Colors.background, Colors.backgroundLight, Colors.background]}
         style={StyleSheet.absoluteFill}
@@ -365,7 +366,7 @@ export default function ResultsScreen() {
           </LinearGradient>
         </Pressable>
       </View>
-    </View>
+    </WebSlideView>
   );
 }
 

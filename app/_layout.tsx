@@ -2,6 +2,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
+import { Platform } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -19,23 +20,29 @@ import { StatusBar } from "expo-status-bar";
 
 SplashScreen.preventAutoHideAsync();
 
+const isWeb = Platform.OS === "web";
+
+const webModalOptions = isWeb
+  ? { presentation: "containedTransparentModal" as const, animation: "none" as const }
+  : {};
+
 function RootLayoutNav() {
   return (
     <Stack
       screenOptions={{
         headerShown: false,
-        animation: "slide_from_right",
+        animation: isWeb ? "none" : "slide_from_right",
         contentStyle: { backgroundColor: Colors.background },
       }}
     >
       <Stack.Screen name="index" />
-      <Stack.Screen name="multiplication" />
-      <Stack.Screen name="division" />
-      <Stack.Screen name="addition" />
-      <Stack.Screen name="subtraction" />
-      <Stack.Screen name="practice" options={{ gestureEnabled: false }} />
-      <Stack.Screen name="results" options={{ gestureEnabled: false, animation: "fade" }} />
-      <Stack.Screen name="history" />
+      <Stack.Screen name="multiplication" options={webModalOptions} />
+      <Stack.Screen name="division" options={webModalOptions} />
+      <Stack.Screen name="addition" options={webModalOptions} />
+      <Stack.Screen name="subtraction" options={webModalOptions} />
+      <Stack.Screen name="practice" options={{ gestureEnabled: false, ...webModalOptions }} />
+      <Stack.Screen name="results" options={{ gestureEnabled: false, animation: isWeb ? "none" : "fade", ...(isWeb ? { presentation: "containedTransparentModal" as const } : {}) }} />
+      <Stack.Screen name="history" options={webModalOptions} />
     </Stack>
   );
 }

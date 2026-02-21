@@ -7,6 +7,7 @@ import {
   ScrollView,
   Platform,
   ActivityIndicator,
+  Animated as RNAnimated,
 } from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -15,6 +16,7 @@ import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import Colors from "@/constants/colors";
+import { useWebSlideTransition } from "@/lib/web-slide";
 import { fontScale, scale, maxContentWidth } from "@/lib/responsive";
 import {
   getStats,
@@ -98,6 +100,7 @@ function MiniSparkline({ data }: { data: number[] }) {
 
 export default function HistoryScreen() {
   const insets = useSafeAreaInsets();
+  const { slideStyle, animateOut } = useWebSlideTransition();
   const [statsByType, setStatsByType] = useState<Record<string, AllTimeStats>>({});
   const [allSessions, setAllSessions] = useState<SessionRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -201,7 +204,7 @@ export default function HistoryScreen() {
   const hasData = currentStats && currentStats.totalSessions > 0;
 
   return (
-    <View style={styles.screen}>
+    <RNAnimated.View style={[styles.screen, slideStyle]}>
       <LinearGradient
         colors={[Colors.background, Colors.backgroundLight, Colors.background]}
         style={StyleSheet.absoluteFill}
@@ -209,7 +212,7 @@ export default function HistoryScreen() {
 
       <View style={[styles.header, { paddingTop: (insets.top || webTopInset) + 8 }]}>
         <Pressable
-          onPress={() => router.back()}
+          onPress={async () => { await animateOut(); router.back(); }}
           style={styles.backButton}
         >
           <Ionicons name="chevron-back" size={22} color={Colors.textSecondary} />
@@ -525,7 +528,7 @@ export default function HistoryScreen() {
           </>
         )}
       </ScrollView>
-    </View>
+    </RNAnimated.View>
   );
 }
 
