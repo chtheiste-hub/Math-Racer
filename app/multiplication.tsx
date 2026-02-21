@@ -98,7 +98,7 @@ export default function MultiplicationScreen() {
             <Pressable
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                router.back();
+                router.replace("/");
               }}
               style={styles.statsButton}
             >
