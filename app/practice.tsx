@@ -229,6 +229,8 @@ export default function PracticeScreen() {
           results: JSON.stringify(results),
           tables: params.tables,
           practiceType,
+          additionCategory,
+          subtractionCategory,
         },
       });
     }

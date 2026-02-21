@@ -27,6 +27,8 @@ export default function ResultsScreen() {
     results: string;
     tables: string;
     practiceType: string;
+    additionCategory: string;
+    subtractionCategory: string;
   }>();
 
   const practiceType = params.practiceType || "multiplication";
@@ -118,6 +120,8 @@ export default function ResultsScreen() {
         questionCount: total.toString(),
         timeLimit: "0",
         practiceType,
+        additionCategory: params.additionCategory || "1",
+        subtractionCategory: params.subtractionCategory || "1",
       },
     });
   };
