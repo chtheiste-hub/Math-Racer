@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   View,
   Text,
@@ -15,8 +15,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import Colors from "@/constants/colors";
 import TableSelector from "@/components/TableSelector";
 import type { TrackerStyle } from "@/components/RaceTrack";
-
-type SessionMode = "questions" | "timed";
+import { loadPreferences, savePreferences, type SessionMode } from "@/lib/preferences";
 
 const QUESTION_OPTIONS = [10, 15, 20, 30, 50];
 const TIME_OPTIONS = [
@@ -36,6 +35,21 @@ export default function MultiplicationScreen() {
   const [mode, setMode] = useState<SessionMode>("questions");
   const [questionCount, setQuestionCount] = useState(20);
   const [timeLimit, setTimeLimit] = useState(120);
+
+  const [prefsLoaded, setPrefsLoaded] = useState(false);
+
+  useEffect(() => {
+    loadPreferences().then((prefs) => {
+      setMode(prefs.mode);
+      setQuestionCount(prefs.questionCount);
+      setTimeLimit(prefs.timeLimit);
+      setPrefsLoaded(true);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (prefsLoaded) savePreferences({ mode, questionCount, timeLimit });
+  }, [mode, questionCount, timeLimit, prefsLoaded]);
 
   const webTopInset = Platform.OS === "web" ? 67 : 0;
   const webBottomInset = Platform.OS === "web" ? 34 : 0;

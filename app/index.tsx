@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -15,6 +15,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import Svg, { Path, Circle, Ellipse } from "react-native-svg";
 import Colors from "@/constants/colors";
 import type { TrackerStyle } from "@/components/RaceTrack";
+import { loadPreferences, savePreferences } from "@/lib/preferences";
 
 function SmallHenIcon({ size = 28, color = "#999" }: { size?: number; color?: string }) {
   const isAccent = color === Colors.accent;
@@ -101,6 +102,18 @@ export default function StartScreen() {
   const webBottomInset = Platform.OS === "web" ? 34 : 0;
   const [trackerStyle, setTrackerStyle] = useState<TrackerStyle>("racecar");
 
+  useEffect(() => {
+    loadPreferences().then((prefs) => {
+      setTrackerStyle(prefs.trackerStyle);
+    });
+  }, []);
+
+  const handleTrackerChange = (value: TrackerStyle) => {
+    setTrackerStyle(value);
+    savePreferences({ trackerStyle: value });
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  };
+
   const handlePress = (area: PracticeArea) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     router.push({ pathname: area.route as any, params: { trackerStyle } });
@@ -179,10 +192,7 @@ export default function StartScreen() {
               return (
                 <Pressable
                   key={opt.value}
-                  onPress={() => {
-                    setTrackerStyle(opt.value);
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  }}
+                  onPress={() => handleTrackerChange(opt.value)}
                   style={[
                     styles.trackerCard,
                     isActive && styles.trackerCardActive,

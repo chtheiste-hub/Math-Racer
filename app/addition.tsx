@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -14,8 +14,7 @@ import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import Colors from "@/constants/colors";
 import type { TrackerStyle } from "@/components/RaceTrack";
-
-type SessionMode = "questions" | "timed";
+import { loadPreferences, savePreferences, type SessionMode } from "@/lib/preferences";
 
 export type AdditionCategory = "1" | "2" | "3" | "4" | "5";
 
@@ -73,6 +72,21 @@ export default function AdditionScreen() {
   const [mode, setMode] = useState<SessionMode>("questions");
   const [questionCount, setQuestionCount] = useState(20);
   const [timeLimit, setTimeLimit] = useState(120);
+
+  const [prefsLoaded, setPrefsLoaded] = useState(false);
+
+  useEffect(() => {
+    loadPreferences().then((prefs) => {
+      setMode(prefs.mode);
+      setQuestionCount(prefs.questionCount);
+      setTimeLimit(prefs.timeLimit);
+      setPrefsLoaded(true);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (prefsLoaded) savePreferences({ mode, questionCount, timeLimit });
+  }, [mode, questionCount, timeLimit, prefsLoaded]);
 
   const webTopInset = Platform.OS === "web" ? 67 : 0;
   const webBottomInset = Platform.OS === "web" ? 34 : 0;
