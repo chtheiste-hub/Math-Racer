@@ -110,22 +110,16 @@ export default function ResultsScreen() {
 
   const handlePlayAgain = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-    if (isCategoryBased) {
-      router.replace({
-        pathname: isSubtraction ? "/subtraction" : "/addition",
-      });
-    } else {
-      router.replace({
-        pathname: "/practice",
-        params: {
-          tables: params.tables || "1,2,3,4,5,6,7,8,9,10",
-          mode: "questions",
-          questionCount: total.toString(),
-          timeLimit: "0",
-          practiceType,
-        },
-      });
-    }
+    router.replace({
+      pathname: "/practice",
+      params: {
+        tables: params.tables || "1,2,3,4,5,6,7,8,9,10",
+        mode: "questions",
+        questionCount: total.toString(),
+        timeLimit: "0",
+        practiceType,
+      },
+    });
   };
 
   const handlePracticeWeak = () => {
@@ -147,6 +141,17 @@ export default function ResultsScreen() {
         },
       });
     }
+  };
+
+  const handleGoToSetup = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    const setupRoutes: Record<string, string> = {
+      multiplication: "/multiplication",
+      division: "/division",
+      addition: "/addition",
+      subtraction: "/subtraction",
+    };
+    router.replace((setupRoutes[practiceType] || "/") as any);
   };
 
   const handleGoHome = () => {
@@ -323,6 +328,15 @@ export default function ResultsScreen() {
           ]}
         >
           <Ionicons name="home" size={20} color={Colors.textSecondary} />
+        </Pressable>
+        <Pressable
+          onPress={handleGoToSetup}
+          style={({ pressed }) => [
+            styles.secondaryButton,
+            pressed && { opacity: 0.8 },
+          ]}
+        >
+          <Ionicons name="grid" size={20} color={Colors.textSecondary} />
         </Pressable>
         <Pressable
           onPress={handlePlayAgain}
