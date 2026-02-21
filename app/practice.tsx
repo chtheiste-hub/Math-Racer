@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Platform,
 } from "react-native";
+import { fontScale, scale, maxContentWidth, numPadButtonSize } from "@/lib/responsive";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -208,6 +209,24 @@ export default function PracticeScreen() {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, []);
+
+  useEffect(() => {
+    if (Platform.OS !== "web") return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key >= "0" && e.key <= "9") {
+        e.preventDefault();
+        handleNumberPress(e.key);
+      } else if (e.key === "Backspace") {
+        e.preventDefault();
+        handleDelete();
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        handleSubmit();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  });
 
   const finishSession = useCallback(() => {
     setIsFinished(true);
@@ -508,36 +527,39 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingBottom: 8,
+    paddingHorizontal: scale(16),
+    paddingBottom: scale(8),
+    maxWidth: maxContentWidth,
+    width: "100%",
+    alignSelf: "center",
   },
   backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: scale(40),
+    height: scale(40),
+    borderRadius: scale(20),
     backgroundColor: Colors.backgroundCard,
     justifyContent: "center",
     alignItems: "center",
   },
   statsRow: {
     flexDirection: "row",
-    gap: 8,
+    gap: scale(8),
   },
   statBadge: {
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
     backgroundColor: Colors.backgroundCard,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 12,
+    paddingHorizontal: scale(10),
+    paddingVertical: scale(6),
+    borderRadius: scale(12),
   },
   streakBadge: {
     backgroundColor: "rgba(244, 162, 97, 0.15)",
   },
   statText: {
     fontFamily: "Outfit_600SemiBold",
-    fontSize: 14,
+    fontSize: fontScale(14),
     color: Colors.text,
   },
   timerBadge: {
@@ -545,18 +567,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 4,
     backgroundColor: Colors.backgroundCard,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 12,
+    paddingHorizontal: scale(10),
+    paddingVertical: scale(6),
+    borderRadius: scale(12),
   },
   timerText: {
     fontFamily: "Outfit_600SemiBold",
-    fontSize: 14,
+    fontSize: fontScale(14),
     color: Colors.textSecondary,
   },
   progressLabel: {
     fontFamily: "Outfit_500Medium",
-    fontSize: 13,
+    fontSize: fontScale(13),
     color: Colors.textMuted,
     textAlign: "center",
     marginTop: -4,
@@ -566,40 +588,40 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 20,
+    paddingHorizontal: scale(20),
     position: "relative",
   },
   questionCard: {
     alignItems: "center",
-    gap: 8,
+    gap: scale(8),
   },
   questionText: {
     fontFamily: "Outfit_800ExtraBold",
-    fontSize: 52,
+    fontSize: fontScale(48),
     color: Colors.text,
     letterSpacing: 2,
   },
   equalsRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
+    gap: scale(12),
   },
   equalsSign: {
     fontFamily: "Outfit_700Bold",
-    fontSize: 36,
+    fontSize: fontScale(36),
     color: Colors.textMuted,
   },
   answerBox: {
-    minWidth: 100,
+    minWidth: scale(100),
     borderBottomWidth: 3,
     borderBottomColor: Colors.secondaryLight,
-    paddingHorizontal: 16,
+    paddingHorizontal: scale(16),
     paddingVertical: 4,
     alignItems: "center",
   },
   answerText: {
     fontFamily: "Outfit_800ExtraBold",
-    fontSize: 44,
+    fontSize: fontScale(44),
     color: Colors.accent,
   },
   answerPlaceholder: {
@@ -608,9 +630,9 @@ const styles = StyleSheet.create({
   },
   correctAnswerHint: {
     fontFamily: "Outfit_500Medium",
-    fontSize: 16,
+    fontSize: fontScale(16),
     color: Colors.textMuted,
-    marginTop: 8,
+    marginTop: scale(8),
   },
   feedbackOverlay: {
     position: "absolute",
@@ -618,17 +640,20 @@ const styles = StyleSheet.create({
     right: 30,
   },
   numpad: {
-    paddingHorizontal: 24,
-    gap: 8,
+    paddingHorizontal: scale(24),
+    gap: scale(8),
+    maxWidth: maxContentWidth,
+    width: "100%",
+    alignSelf: "center",
   },
   numpadRow: {
     flexDirection: "row",
-    gap: 8,
+    gap: scale(8),
   },
   numpadKey: {
     flex: 1,
-    height: 56,
-    borderRadius: 14,
+    height: scale(56),
+    borderRadius: scale(14),
     backgroundColor: Colors.backgroundCard,
     justifyContent: "center",
     alignItems: "center",
@@ -656,7 +681,7 @@ const styles = StyleSheet.create({
   },
   numpadKeyText: {
     fontFamily: "Outfit_600SemiBold",
-    fontSize: 24,
+    fontSize: fontScale(24),
     color: Colors.text,
   },
 });

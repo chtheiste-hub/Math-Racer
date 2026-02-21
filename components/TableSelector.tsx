@@ -3,6 +3,7 @@ import { View, Text, Pressable, StyleSheet } from "react-native";
 import * as Haptics from "expo-haptics";
 import { Ionicons } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
+import { fontScale, scale } from "@/lib/responsive";
 
 interface TableSelectorProps {
   selectedTables: Set<number>;
@@ -87,48 +88,48 @@ export default function TableSelector({
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 20,
+    paddingHorizontal: scale(20),
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 14,
+    marginBottom: scale(14),
   },
   title: {
     fontFamily: "Outfit_600SemiBold",
-    fontSize: 16,
+    fontSize: fontScale(16),
     color: Colors.textSecondary,
   },
   bulkButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
+    paddingHorizontal: scale(12),
+    paddingVertical: scale(6),
+    borderRadius: scale(12),
     backgroundColor: Colors.surfaceLight,
   },
   bulkButtonText: {
     fontFamily: "Outfit_500Medium",
-    fontSize: 13,
+    fontSize: fontScale(13),
     color: Colors.accent,
   },
   grid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 10,
+    gap: scale(10),
   },
   tableButton: {
     width: "18%" as any,
     aspectRatio: 1,
-    borderRadius: 14,
+    borderRadius: scale(14),
     backgroundColor: Colors.backgroundCard,
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 1.5,
     borderColor: Colors.border,
     position: "relative",
-    minWidth: 56,
+    minWidth: scale(56),
     flexGrow: 1,
-    maxWidth: 72,
+    maxWidth: scale(72),
   },
   tableButtonSelected: {
     backgroundColor: Colors.primary,
@@ -136,7 +137,7 @@ const styles = StyleSheet.create({
   },
   tableNumber: {
     fontFamily: "Outfit_700Bold",
-    fontSize: 22,
+    fontSize: fontScale(22),
     color: Colors.textMuted,
   },
   tableNumberSelected: {
@@ -144,7 +145,7 @@ const styles = StyleSheet.create({
   },
   tableLabel: {
     fontFamily: "Outfit_400Regular",
-    fontSize: 11,
+    fontSize: fontScale(11),
     color: Colors.textMuted,
     marginTop: -2,
   },
