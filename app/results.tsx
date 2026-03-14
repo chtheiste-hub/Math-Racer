@@ -17,6 +17,7 @@ import Colors from "@/constants/colors";
 import { WebSlideView } from "@/lib/web-slide";
 import { saveSessionResults, type PracticeType } from "@/lib/stats-storage";
 import { fontScale, scale, maxContentWidth } from "@/lib/responsive";
+import { useTranslation } from "@/lib/language-context";
 
 export default function ResultsScreen() {
   const insets = useSafeAreaInsets();
@@ -35,6 +36,7 @@ export default function ResultsScreen() {
 
   const practiceType = params.practiceType || "multiplication";
   const operatorSymbol = practiceType === "division" ? "\u00F7" : practiceType === "addition" ? "+" : practiceType === "subtraction" ? "\u2212" : "x";
+  const { strings } = useTranslation();
 
   const webTopInset = Platform.OS === "web" ? 67 : 0;
   const webBottomInset = Platform.OS === "web" ? 34 : 0;
@@ -100,10 +102,10 @@ export default function ResultsScreen() {
   };
 
   const getGrade = () => {
-    if (accuracy >= 95) return { label: "Perfect", color: Colors.success, icon: "trophy" as const };
-    if (accuracy >= 80) return { label: "Great", color: Colors.accent, icon: "star" as const };
-    if (accuracy >= 60) return { label: "Good", color: Colors.secondaryLight, icon: "thumbs-up" as const };
-    return { label: "Keep Practicing", color: Colors.textMuted, icon: "fitness" as const };
+    if (accuracy >= 95) return { label: strings.gradePerfect, color: Colors.success, icon: "trophy" as const };
+    if (accuracy >= 80) return { label: strings.gradeGreat, color: Colors.accent, icon: "star" as const };
+    if (accuracy >= 60) return { label: strings.gradeGood, color: Colors.secondaryLight, icon: "thumbs-up" as const };
+    return { label: strings.gradeKeepPracticing, color: Colors.textMuted, icon: "fitness" as const };
   };
 
   const grade = getGrade();
@@ -187,29 +189,29 @@ export default function ResultsScreen() {
             <Ionicons name={grade.icon} size={36} color={grade.color} />
           </View>
           <Text style={styles.gradeLabel}>{grade.label}</Text>
-          <Text style={styles.accuracyText}>{accuracy}% Accuracy</Text>
+          <Text style={styles.accuracyText}>{accuracy}% {strings.accuracy}</Text>
         </Animated.View>
 
         <Animated.View entering={FadeInDown.delay(200)} style={styles.statsGrid}>
           <View style={styles.statCard}>
             <Ionicons name="checkmark-circle" size={20} color={Colors.success} />
             <Text style={styles.statValue}>{correct}</Text>
-            <Text style={styles.statLabel}>Correct</Text>
+            <Text style={styles.statLabel}>{strings.correct}</Text>
           </View>
           <View style={styles.statCard}>
             <Ionicons name="close-circle" size={20} color={Colors.error} />
             <Text style={styles.statValue}>{wrong}</Text>
-            <Text style={styles.statLabel}>Wrong</Text>
+            <Text style={styles.statLabel}>{strings.wrong}</Text>
           </View>
           <View style={styles.statCard}>
             <Ionicons name="timer-outline" size={20} color={Colors.secondaryLight} />
             <Text style={styles.statValue}>{formatTime(elapsed)}</Text>
-            <Text style={styles.statLabel}>Time</Text>
+            <Text style={styles.statLabel}>{strings.time}</Text>
           </View>
           <View style={styles.statCard}>
             <MaterialCommunityIcons name="fire" size={20} color={Colors.accent} />
             <Text style={styles.statValue}>{bestStreak}</Text>
-            <Text style={styles.statLabel}>Best Streak</Text>
+            <Text style={styles.statLabel}>{strings.bestStreak}</Text>
           </View>
         </Animated.View>
 
@@ -217,10 +219,10 @@ export default function ResultsScreen() {
           <Animated.View entering={FadeInDown.delay(250)} style={styles.focusSection}>
             <View style={styles.focusHeader}>
               <MaterialCommunityIcons name="target" size={20} color={Colors.accent} />
-              <Text style={styles.focusTitleText}>Focus Areas</Text>
+              <Text style={styles.focusTitleText}>{strings.focusAreas}</Text>
             </View>
             <Text style={styles.focusSubtext}>
-              These tables need more practice:
+              {strings.focusSubtext}
             </Text>
             <View style={styles.focusChips}>
               {weakTables.map((t) => (
@@ -238,7 +240,7 @@ export default function ResultsScreen() {
               ]}
             >
               <MaterialCommunityIcons name="target" size={16} color={Colors.white} />
-              <Text style={styles.focusButtonText}>Practice These Tables</Text>
+              <Text style={styles.focusButtonText}>{strings.practiceTheseTables}</Text>
             </Pressable>
           </Animated.View>
         )}
@@ -247,10 +249,10 @@ export default function ResultsScreen() {
           <Animated.View entering={FadeInDown.delay(250)} style={styles.focusSection}>
             <View style={styles.focusHeader}>
               <MaterialCommunityIcons name="target" size={20} color={Colors.accent} />
-              <Text style={styles.focusTitleText}>Keep Practicing</Text>
+              <Text style={styles.focusTitleText}>{strings.keepPracticing}</Text>
             </View>
             <Text style={styles.focusSubtext}>
-              Try this category again to improve your score!
+              {strings.keepPracticingSubtext}
             </Text>
             <Pressable
               onPress={handlePracticeWeak}
@@ -260,14 +262,14 @@ export default function ResultsScreen() {
               ]}
             >
               <MaterialCommunityIcons name="restart" size={16} color={Colors.white} />
-              <Text style={styles.focusButtonText}>Practice Again</Text>
+              <Text style={styles.focusButtonText}>{strings.practiceAgain}</Text>
             </Pressable>
           </Animated.View>
         )}
 
         {!isCategoryBased && tableBreakdown.length > 0 && (
           <Animated.View entering={FadeInDown.delay(300)} style={styles.section}>
-            <Text style={styles.sectionTitle}>Per Table</Text>
+            <Text style={styles.sectionTitle}>{strings.perTable}</Text>
             <View style={styles.tableBreakdownList}>
               {tableBreakdown.map((item) => (
                 <View key={item.table} style={styles.tableRow}>
@@ -299,7 +301,7 @@ export default function ResultsScreen() {
 
         {wrongResults.length > 0 && (
           <Animated.View entering={FadeInDown.delay(400)} style={styles.section}>
-            <Text style={styles.sectionTitle}>Review Mistakes</Text>
+            <Text style={styles.sectionTitle}>{strings.reviewMistakes}</Text>
             <View style={styles.mistakesList}>
               {wrongResults.map((r, i) => (
                 <View key={i} style={styles.mistakeRow}>
@@ -362,7 +364,7 @@ export default function ResultsScreen() {
               size={20}
               color={Colors.white}
             />
-            <Text style={styles.primaryButtonText}>Race Again</Text>
+            <Text style={styles.primaryButtonText}>{strings.raceAgain}</Text>
           </LinearGradient>
         </Pressable>
       </View>

@@ -10,6 +10,9 @@ interface TableSelectorProps {
   onToggle: (table: number) => void;
   onSelectAll: () => void;
   onDeselectAll: () => void;
+  title?: string;
+  selectAllLabel?: string;
+  clearAllLabel?: string;
 }
 
 export default function TableSelector({
@@ -17,6 +20,9 @@ export default function TableSelector({
   onToggle,
   onSelectAll,
   onDeselectAll,
+  title = "Multiplication Tables",
+  selectAllLabel = "Select All",
+  clearAllLabel = "Clear All",
 }: TableSelectorProps) {
   const tables = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   const allSelected = tables.every((t) => selectedTables.has(t));
@@ -38,10 +44,10 @@ export default function TableSelector({
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Multiplication Tables</Text>
+        <Text style={styles.title}>{title}</Text>
         <Pressable onPress={handleBulkAction} style={styles.bulkButton}>
           <Text style={styles.bulkButtonText}>
-            {allSelected ? "Clear All" : "Select All"}
+            {allSelected ? clearAllLabel : selectAllLabel}
           </Text>
         </Pressable>
       </View>

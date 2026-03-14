@@ -27,25 +27,11 @@ import {
   type SessionRecord,
   type PracticeType,
 } from "@/lib/stats-storage";
-
-const ADDITION_CATEGORY_NAMES: Record<number, string> = {
-  1: "Small Numbers",
-  2: "Adds Up to 10",
-  3: "Passing 10",
-  4: "Passing Whole Tens",
-  5: "Double Digits",
-};
-
-const SUBTRACTION_CATEGORY_NAMES: Record<number, string> = {
-  1: "Small Numbers",
-  2: "Subtract from 10",
-  3: "Passing 10",
-  4: "Passing Whole Tens",
-  5: "Double Digits",
-};
+import { useTranslation } from "@/lib/language-context";
+import { t } from "@/lib/i18n";
 
 const PRACTICE_FILTERS: { value: PracticeType | "all"; label: string }[] = [
-  { value: "all", label: "All" },
+  { value: "all", label: "" },
   { value: "multiplication", label: "\u00D7" },
   { value: "division", label: "\u00F7" },
   { value: "addition", label: "+" },
@@ -101,11 +87,28 @@ function MiniSparkline({ data }: { data: number[] }) {
 export default function HistoryScreen() {
   const insets = useSafeAreaInsets();
   const { slideStyle, animateOut } = useWebSlideTransition();
+  const { strings } = useTranslation();
   const [statsByType, setStatsByType] = useState<Record<string, AllTimeStats>>({});
   const [allSessions, setAllSessions] = useState<SessionRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"tables" | "history">("tables");
   const [practiceFilter, setPracticeFilter] = useState<PracticeType | "all">("all");
+
+  const ADDITION_CATEGORY_NAMES: Record<number, string> = {
+    1: strings.addCat1Title,
+    2: strings.addCat2Title,
+    3: strings.addCat3Title,
+    4: strings.addCat4Title,
+    5: strings.addCat5Title,
+  };
+
+  const SUBTRACTION_CATEGORY_NAMES: Record<number, string> = {
+    1: strings.subCat1Title,
+    2: strings.subCat2Title,
+    3: strings.subCat3Title,
+    4: strings.subCat4Title,
+    5: strings.subCat5Title,
+  };
 
   const webTopInset = Platform.OS === "web" ? 67 : 0;
   const webBottomInset = Platform.OS === "web" ? 34 : 0;
@@ -168,12 +171,12 @@ export default function HistoryScreen() {
     const now = new Date();
     const diffMs = now.getTime() - d.getTime();
     const diffMins = Math.floor(diffMs / 60000);
-    if (diffMins < 1) return "Just now";
-    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffMins < 1) return strings.justNow;
+    if (diffMins < 60) return t(strings, "minutesAgo", { count: diffMins });
     const diffHrs = Math.floor(diffMins / 60);
-    if (diffHrs < 24) return `${diffHrs}h ago`;
+    if (diffHrs < 24) return t(strings, "hoursAgo", { count: diffHrs });
     const diffDays = Math.floor(diffHrs / 24);
-    if (diffDays < 7) return `${diffDays}d ago`;
+    if (diffDays < 7) return t(strings, "daysAgo", { count: diffDays });
     return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
   };
 
@@ -217,7 +220,7 @@ export default function HistoryScreen() {
         >
           <Ionicons name="chevron-back" size={22} color={Colors.textSecondary} />
         </Pressable>
-        <Text style={styles.headerTitle}>Statistics</Text>
+        <Text style={styles.headerTitle}>{strings.statistics}</Text>
         {(allSessions.length > 0) ? (
           <Pressable onPress={handleClearData} style={styles.clearButton}>
             <Ionicons name="trash-outline" size={18} color={Colors.textMuted} />
@@ -248,7 +251,7 @@ export default function HistoryScreen() {
                   isActive && styles.filterChipTextActive,
                 ]}
               >
-                {f.label}
+                {f.value === "all" ? strings.all : f.label}
               </Text>
             </Pressable>
           );
@@ -270,9 +273,9 @@ export default function HistoryScreen() {
               size={48}
               color={Colors.textMuted}
             />
-            <Text style={styles.emptyTitle}>No data yet</Text>
+            <Text style={styles.emptyTitle}>{strings.noDataYet}</Text>
             <Text style={styles.emptySubtext}>
-              Complete a {practiceFilter === "all" ? "" : practiceFilter + " "}practice session to see your statistics here
+              {practiceFilter === "all" ? strings.emptySubtext : strings.emptySubtextFiltered}
             </Text>
             <Pressable
               onPress={() => router.replace("/")}
@@ -281,7 +284,7 @@ export default function HistoryScreen() {
                 pressed && { opacity: 0.85 },
               ]}
             >
-              <Text style={styles.emptyButtonText}>Start Practicing</Text>
+              <Text style={styles.emptyButtonText}>{strings.startPracticing}</Text>
             </Pressable>
           </View>
         ) : (
@@ -289,17 +292,17 @@ export default function HistoryScreen() {
             <Animated.View entering={FadeInDown.delay(100)} style={styles.overviewCards}>
               <View style={styles.overviewCard}>
                 <Text style={styles.overviewValue}>{currentStats!.totalSessions}</Text>
-                <Text style={styles.overviewLabel}>Sessions</Text>
+                <Text style={styles.overviewLabel}>{strings.sessions}</Text>
               </View>
               <View style={styles.overviewCard}>
                 <Text style={styles.overviewValue}>{currentStats!.totalQuestions}</Text>
-                <Text style={styles.overviewLabel}>Questions</Text>
+                <Text style={styles.overviewLabel}>{strings.questions}</Text>
               </View>
               <View style={styles.overviewCard}>
                 <Text style={[styles.overviewValue, { color: overallAccuracy >= 80 ? Colors.success : overallAccuracy >= 50 ? Colors.accent : Colors.error }]}>
                   {overallAccuracy}%
                 </Text>
-                <Text style={styles.overviewLabel}>Accuracy</Text>
+                <Text style={styles.overviewLabel}>{strings.accuracy}</Text>
               </View>
             </Animated.View>
 
@@ -320,7 +323,7 @@ export default function HistoryScreen() {
                     activeTab === "tables" && styles.tabButtonTextActive,
                   ]}
                 >
-                  {practiceFilter === "addition" || practiceFilter === "subtraction" ? "Categories" : "Tables"}
+                  {practiceFilter === "addition" || practiceFilter === "subtraction" ? strings.categories : strings.tables}
                 </Text>
               </Pressable>
               <Pressable
@@ -339,7 +342,7 @@ export default function HistoryScreen() {
                     activeTab === "history" && styles.tabButtonTextActive,
                   ]}
                 >
-                  History
+                  {strings.history}
                 </Text>
               </Pressable>
             </View>
@@ -367,11 +370,11 @@ export default function HistoryScreen() {
                         </View>
                         <View style={styles.tableStatsInfo}>
                           <View style={styles.tableStatsNameRow}>
-                            <Text style={styles.tableStatsName}>{practiceFilter === "addition" ? (ADDITION_CATEGORY_NAMES[item.table] || `Category ${item.table}`) : practiceFilter === "subtraction" ? (SUBTRACTION_CATEGORY_NAMES[item.table] || `Category ${item.table}`) : `${item.table}${tableOperator} Table`}</Text>
+                            <Text style={styles.tableStatsName}>{practiceFilter === "addition" ? (ADDITION_CATEGORY_NAMES[item.table] || `${strings.categoryLabel} ${item.table}`) : practiceFilter === "subtraction" ? (SUBTRACTION_CATEGORY_NAMES[item.table] || `${strings.categoryLabel} ${item.table}`) : `${item.table}${tableOperator} ${strings.table}`}</Text>
                             <TrendIcon trend={item.trend} />
                           </View>
                           <Text style={styles.tableStatsDetail}>
-                            {tableData?.totalCorrect || 0}/{tableData?.totalAttempts || 0} correct
+                            {tableData?.totalCorrect || 0}/{tableData?.totalAttempts || 0} {strings.correctSuffix}
                           </Text>
                         </View>
                       </View>
@@ -400,7 +403,7 @@ export default function HistoryScreen() {
                   <View style={styles.noDataMessage}>
                     <Ionicons name="checkmark-circle" size={24} color={Colors.success} />
                     <Text style={styles.noDataText}>
-                      No practice data recorded yet for any {practiceFilter === "addition" || practiceFilter === "subtraction" ? "categories" : "tables"}
+                      {practiceFilter === "addition" || practiceFilter === "subtraction" ? strings.noCategoriesData : strings.noTablesData}
                     </Text>
                   </View>
                 )}
@@ -519,7 +522,7 @@ export default function HistoryScreen() {
                       color={Colors.textMuted}
                     />
                     <Text style={styles.noDataText}>
-                      No sessions recorded yet
+                      {strings.noSessionsYet}
                     </Text>
                   </View>
                 )}

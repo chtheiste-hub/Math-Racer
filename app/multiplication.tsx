@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useMemo } from "react";
 import {
   View,
   Text,
@@ -19,14 +19,9 @@ import type { TrackerStyle } from "@/components/RaceTrack";
 import { loadPreferences, savePreferences, type SessionMode } from "@/lib/preferences";
 import { isTablet, fontScale, scale, maxContentWidth } from "@/lib/responsive";
 import { useWebSlideTransition } from "@/lib/web-slide";
+import { useTranslation } from "@/lib/language-context";
 
 const QUESTION_OPTIONS = [10, 15, 20, 30, 50];
-const TIME_OPTIONS = [
-  { label: "1 min", value: 60 },
-  { label: "2 min", value: 120 },
-  { label: "3 min", value: 180 },
-  { label: "5 min", value: 300 },
-];
 
 export default function MultiplicationScreen() {
   const insets = useSafeAreaInsets();
@@ -38,6 +33,14 @@ export default function MultiplicationScreen() {
   const [mode, setMode] = useState<SessionMode>("questions");
   const [questionCount, setQuestionCount] = useState(20);
   const [timeLimit, setTimeLimit] = useState(120);
+  const { strings } = useTranslation();
+
+  const TIME_OPTIONS = useMemo(() => [
+    { label: strings.min1, value: 60 },
+    { label: strings.min2, value: 120 },
+    { label: strings.min3, value: 180 },
+    { label: strings.min5, value: 300 },
+  ], [strings]);
 
   const [prefsLoaded, setPrefsLoaded] = useState(false);
 
@@ -140,9 +143,9 @@ export default function MultiplicationScreen() {
               <Ionicons name="stats-chart" size={20} color={Colors.accent} />
             </Pressable>
           </View>
-          <Text style={styles.heroTitle}>Multiplication</Text>
+          <Text style={styles.heroTitle}>{strings.multiplication}</Text>
           <Text style={styles.heroSubtitle}>
-            Pick your tables and start practicing
+            {strings.pickTablesSubtitle}
           </Text>
         </View>
 
@@ -151,10 +154,13 @@ export default function MultiplicationScreen() {
           onToggle={toggleTable}
           onSelectAll={selectAll}
           onDeselectAll={deselectAll}
+          title={strings.multiplicationTables}
+          selectAllLabel={strings.selectAll}
+          clearAllLabel={strings.clearAll}
         />
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Practice Mode</Text>
+          <Text style={styles.sectionTitle}>{strings.practiceMode}</Text>
           <View style={styles.modeToggle}>
             <Pressable
               onPress={() => {
@@ -177,7 +183,7 @@ export default function MultiplicationScreen() {
                   mode === "questions" && styles.modeButtonTextActive,
                 ]}
               >
-                By Questions
+                {strings.byQuestions}
               </Text>
             </Pressable>
             <Pressable
@@ -201,7 +207,7 @@ export default function MultiplicationScreen() {
                   mode === "timed" && styles.modeButtonTextActive,
                 ]}
               >
-                Timed
+                {strings.timed}
               </Text>
             </Pressable>
           </View>
@@ -285,7 +291,7 @@ export default function MultiplicationScreen() {
               size={22}
               color={Colors.white}
             />
-            <Text style={styles.startButtonText}>Start Race</Text>
+            <Text style={styles.startButtonText}>{strings.startRace}</Text>
           </LinearGradient>
         </Pressable>
       </View>

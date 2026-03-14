@@ -23,6 +23,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import Colors from "@/constants/colors";
 import RaceTrack, { type TrackerStyle } from "@/components/RaceTrack";
 import { WebSlideView } from "@/lib/web-slide";
+import { useTranslation } from "@/lib/language-context";
 
 interface Question {
   a: number;
@@ -156,6 +157,7 @@ export default function PracticeScreen() {
   const categoryOverride = practiceType === "subtraction" ? subtractionCategory : additionCategory;
 
   const webTopInset = Platform.OS === "web" ? 67 : 0;
+  const { strings } = useTranslation();
 
   const [currentQuestion, setCurrentQuestion] = useState<Question>(() =>
     generateQuestion(tables, practiceType, categoryOverride)
@@ -440,7 +442,7 @@ export default function PracticeScreen() {
                 entering={FadeIn.duration(200)}
                 style={styles.correctAnswerHint}
               >
-                Answer: {currentQuestion.answer}
+                {strings.answer}: {currentQuestion.answer}
               </Animated.Text>
             )}
           </View>

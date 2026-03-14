@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   View,
   Text,
@@ -17,6 +17,7 @@ import Colors from "@/constants/colors";
 import type { TrackerStyle } from "@/components/RaceTrack";
 import { loadPreferences, savePreferences } from "@/lib/preferences";
 import { isTablet, fontScale, scale, maxContentWidth } from "@/lib/responsive";
+import { useTranslation } from "@/lib/language-context";
 
 function SmallHenIcon({ size = 28, color = "#999" }: { size?: number; color?: string }) {
   const isAccent = color === Colors.accent;
@@ -48,11 +49,6 @@ function SmallHenIcon({ size = 28, color = "#999" }: { size?: number; color?: st
   );
 }
 
-const TRACKER_OPTIONS: { value: TrackerStyle; label: string }[] = [
-  { value: "racecar", label: "Racecar" },
-  { value: "chicken", label: "Hen" },
-];
-
 type PracticeArea = {
   id: string;
   title: string;
@@ -62,46 +58,52 @@ type PracticeArea = {
   color: string;
 };
 
-const PRACTICE_AREAS: PracticeArea[] = [
-  {
-    id: "multiplication",
-    title: "Multiplication",
-    subtitle: "Master your times tables 1\u201310",
-    icon: "multiplication",
-    route: "/multiplication",
-    color: Colors.primary,
-  },
-  {
-    id: "division",
-    title: "Division",
-    subtitle: "Divide within the 10\u00d7 tables",
-    icon: "division",
-    route: "/division",
-    color: Colors.secondaryLight,
-  },
-  {
-    id: "addition",
-    title: "Addition",
-    subtitle: "From small numbers to double digits",
-    icon: "plus-circle-outline",
-    route: "/addition",
-    color: Colors.success,
-  },
-  {
-    id: "subtraction",
-    title: "Subtraction",
-    subtitle: "From small numbers to double digits",
-    icon: "minus-circle-outline",
-    route: "/subtraction",
-    color: Colors.accent,
-  },
-];
-
 export default function StartScreen() {
   const insets = useSafeAreaInsets();
   const webTopInset = Platform.OS === "web" ? 67 : 0;
   const webBottomInset = Platform.OS === "web" ? 34 : 0;
   const [trackerStyle, setTrackerStyle] = useState<TrackerStyle>("racecar");
+  const { strings, language, setLanguage } = useTranslation();
+
+  const TRACKER_OPTIONS = useMemo(() => [
+    { value: "racecar" as TrackerStyle, label: strings.trackerRacecar },
+    { value: "chicken" as TrackerStyle, label: strings.trackerHen },
+  ], [strings]);
+
+  const PRACTICE_AREAS: PracticeArea[] = useMemo(() => [
+    {
+      id: "multiplication",
+      title: strings.multiplication,
+      subtitle: strings.multiplicationSubtitle,
+      icon: "multiplication",
+      route: "/multiplication",
+      color: Colors.primary,
+    },
+    {
+      id: "division",
+      title: strings.division,
+      subtitle: strings.divisionSubtitle,
+      icon: "division",
+      route: "/division",
+      color: Colors.secondaryLight,
+    },
+    {
+      id: "addition",
+      title: strings.addition,
+      subtitle: strings.additionSubtitle,
+      icon: "plus-circle-outline",
+      route: "/addition",
+      color: Colors.success,
+    },
+    {
+      id: "subtraction",
+      title: strings.subtraction,
+      subtitle: strings.subtractionSubtitle,
+      icon: "minus-circle-outline",
+      route: "/subtraction",
+      color: Colors.accent,
+    },
+  ], [strings]);
 
   useEffect(() => {
     loadPreferences().then((prefs) => {
@@ -118,6 +120,11 @@ export default function StartScreen() {
   const handlePress = (area: PracticeArea) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     router.push({ pathname: area.route as any, params: { trackerStyle } });
+  };
+
+  const toggleLanguage = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setLanguage(language === "no" ? "en" : "no");
   };
 
   return (
@@ -139,7 +146,14 @@ export default function StartScreen() {
       >
         <View style={styles.header}>
           <View style={styles.headerTop}>
-            <View style={{ width: 40 }} />
+            <Pressable
+              onPress={toggleLanguage}
+              style={styles.langButton}
+            >
+              <Text style={styles.langButtonText}>
+                {language === "no" ? "EN" : "NO"}
+              </Text>
+            </Pressable>
             <MaterialCommunityIcons
               name="car-sports"
               size={40}
@@ -155,8 +169,8 @@ export default function StartScreen() {
               <Ionicons name="stats-chart" size={20} color={Colors.accent} />
             </Pressable>
           </View>
-          <Text style={styles.title}>Math Racer</Text>
-          <Text style={styles.subtitle}>What do you want to practice?</Text>
+          <Text style={styles.title}>{strings.appTitle}</Text>
+          <Text style={styles.subtitle}>{strings.whatToPractice}</Text>
         </View>
 
         <View style={styles.cards}>
@@ -186,7 +200,7 @@ export default function StartScreen() {
         </View>
 
         <View style={styles.trackerSection}>
-          <Text style={styles.sectionTitle}>Progress Tracker</Text>
+          <Text style={styles.sectionTitle}>{strings.progressTracker}</Text>
           <View style={styles.trackerRow}>
             {TRACKER_OPTIONS.map((opt) => {
               const isActive = trackerStyle === opt.value;
@@ -256,6 +270,21 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     width: "100%",
     marginBottom: scale(12),
+  },
+  langButton: {
+    width: scale(40),
+    height: scale(40),
+    borderRadius: scale(20),
+    backgroundColor: Colors.backgroundCard,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1.5,
+    borderColor: Colors.border,
+  },
+  langButtonText: {
+    fontFamily: "Outfit_700Bold",
+    fontSize: fontScale(12),
+    color: Colors.accent,
   },
   statsButton: {
     width: scale(40),

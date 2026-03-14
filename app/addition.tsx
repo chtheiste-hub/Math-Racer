@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   View,
   Text,
@@ -18,54 +18,11 @@ import type { TrackerStyle } from "@/components/RaceTrack";
 import { loadPreferences, savePreferences, type SessionMode } from "@/lib/preferences";
 import { isTablet, fontScale, scale, maxContentWidth } from "@/lib/responsive";
 import { useWebSlideTransition } from "@/lib/web-slide";
+import { useTranslation } from "@/lib/language-context";
 
 export type AdditionCategory = "1" | "2" | "3" | "4" | "5";
 
-const ADDITION_CATEGORIES: { id: AdditionCategory; title: string; description: string; examples: string; icon: keyof typeof MaterialCommunityIcons.glyphMap }[] = [
-  {
-    id: "1",
-    title: "Small Numbers",
-    description: "Answers are 10 or less",
-    examples: "3 + 4 = 7",
-    icon: "numeric-1-circle",
-  },
-  {
-    id: "2",
-    title: "Adds Up to 10",
-    description: "Find the missing number to make 10",
-    examples: "3 + ? = 10",
-    icon: "numeric-2-circle",
-  },
-  {
-    id: "3",
-    title: "Passing 10",
-    description: "Single digits that cross 10 (answers 11\u201319)",
-    examples: "7 + 5 = 12",
-    icon: "numeric-3-circle",
-  },
-  {
-    id: "4",
-    title: "Passing Whole Tens",
-    description: "Cross a tens boundary from 10\u201389",
-    examples: "27 + 5 = 32",
-    icon: "numeric-4-circle",
-  },
-  {
-    id: "5",
-    title: "Double Digits",
-    description: "Two double-digit numbers added together",
-    examples: "23 + 45 = 68",
-    icon: "numeric-5-circle",
-  },
-];
-
 const QUESTION_OPTIONS = [10, 15, 20, 30, 50];
-const TIME_OPTIONS = [
-  { label: "1 min", value: 60 },
-  { label: "2 min", value: 120 },
-  { label: "3 min", value: 180 },
-  { label: "5 min", value: 300 },
-];
 
 export default function AdditionScreen() {
   const insets = useSafeAreaInsets();
@@ -75,6 +32,22 @@ export default function AdditionScreen() {
   const [mode, setMode] = useState<SessionMode>("questions");
   const [questionCount, setQuestionCount] = useState(20);
   const [timeLimit, setTimeLimit] = useState(120);
+  const { strings } = useTranslation();
+
+  const ADDITION_CATEGORIES = useMemo(() => [
+    { id: "1" as AdditionCategory, title: strings.addCat1Title, description: strings.addCat1Desc, examples: "3 + 4 = 7", icon: "numeric-1-circle" as keyof typeof MaterialCommunityIcons.glyphMap },
+    { id: "2" as AdditionCategory, title: strings.addCat2Title, description: strings.addCat2Desc, examples: "3 + ? = 10", icon: "numeric-2-circle" as keyof typeof MaterialCommunityIcons.glyphMap },
+    { id: "3" as AdditionCategory, title: strings.addCat3Title, description: strings.addCat3Desc, examples: "7 + 5 = 12", icon: "numeric-3-circle" as keyof typeof MaterialCommunityIcons.glyphMap },
+    { id: "4" as AdditionCategory, title: strings.addCat4Title, description: strings.addCat4Desc, examples: "27 + 5 = 32", icon: "numeric-4-circle" as keyof typeof MaterialCommunityIcons.glyphMap },
+    { id: "5" as AdditionCategory, title: strings.addCat5Title, description: strings.addCat5Desc, examples: "23 + 45 = 68", icon: "numeric-5-circle" as keyof typeof MaterialCommunityIcons.glyphMap },
+  ], [strings]);
+
+  const TIME_OPTIONS = useMemo(() => [
+    { label: strings.min1, value: 60 },
+    { label: strings.min2, value: 120 },
+    { label: strings.min3, value: 180 },
+    { label: strings.min5, value: 300 },
+  ], [strings]);
 
   const [prefsLoaded, setPrefsLoaded] = useState(false);
 
@@ -158,14 +131,14 @@ export default function AdditionScreen() {
               <Ionicons name="stats-chart" size={20} color={Colors.accent} />
             </Pressable>
           </View>
-          <Text style={styles.heroTitle}>Addition</Text>
+          <Text style={styles.heroTitle}>{strings.addition}</Text>
           <Text style={styles.heroSubtitle}>
-            Choose a category and start practicing
+            {strings.chooseCategorySubtitle}
           </Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Category</Text>
+          <Text style={styles.sectionTitle}>{strings.category}</Text>
           <View style={styles.categoryList}>
             {ADDITION_CATEGORIES.map((cat) => {
               const isActive = selectedCategory === cat.id;
@@ -207,7 +180,7 @@ export default function AdditionScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Practice Mode</Text>
+          <Text style={styles.sectionTitle}>{strings.practiceMode}</Text>
           <View style={styles.modeToggle}>
             <Pressable
               onPress={() => {
@@ -230,7 +203,7 @@ export default function AdditionScreen() {
                   mode === "questions" && styles.modeButtonTextActive,
                 ]}
               >
-                By Questions
+                {strings.byQuestions}
               </Text>
             </Pressable>
             <Pressable
@@ -254,7 +227,7 @@ export default function AdditionScreen() {
                   mode === "timed" && styles.modeButtonTextActive,
                 ]}
               >
-                Timed
+                {strings.timed}
               </Text>
             </Pressable>
           </View>
@@ -337,7 +310,7 @@ export default function AdditionScreen() {
               size={22}
               color={Colors.white}
             />
-            <Text style={styles.startButtonText}>Start Race</Text>
+            <Text style={styles.startButtonText}>{strings.startRace}</Text>
           </LinearGradient>
         </Pressable>
       </View>
@@ -346,201 +319,40 @@ export default function AdditionScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  content: {
-    gap: scale(24),
-    maxWidth: maxContentWidth,
-    width: "100%",
-    alignSelf: "center",
-  },
-  heroSection: {
-    alignItems: "center",
-    paddingHorizontal: scale(20),
-    paddingTop: scale(12),
-    gap: scale(6),
-  },
-  topRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    width: "100%",
-    marginBottom: scale(6),
-  },
-  navButton: {
-    width: scale(40),
-    height: scale(40),
-    borderRadius: scale(20),
-    backgroundColor: Colors.backgroundCard,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  iconRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  heroTitle: {
-    fontFamily: "Outfit_800ExtraBold",
-    fontSize: fontScale(34),
-    color: Colors.text,
-    letterSpacing: -0.5,
-  },
-  heroSubtitle: {
-    fontFamily: "Outfit_400Regular",
-    fontSize: fontScale(15),
-    color: Colors.textMuted,
-  },
-  section: {
-    paddingHorizontal: scale(20),
-    gap: scale(12),
-  },
-  sectionTitle: {
-    fontFamily: "Outfit_600SemiBold",
-    fontSize: fontScale(16),
-    color: Colors.textSecondary,
-  },
-  categoryList: {
-    gap: 10,
-  },
-  categoryCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: scale(16),
-    borderRadius: scale(14),
-    backgroundColor: Colors.backgroundCard,
-    borderWidth: 1.5,
-    borderColor: Colors.border,
-  },
-  categoryCardActive: {
-    borderColor: Colors.success,
-    backgroundColor: "rgba(45, 198, 83, 0.06)",
-  },
-  categoryLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: scale(14),
-    flex: 1,
-  },
-  categoryTextWrap: {
-    flex: 1,
-    gap: 2,
-  },
-  categoryTitle: {
-    fontFamily: "Outfit_700Bold",
-    fontSize: fontScale(15),
-    color: Colors.text,
-  },
-  categoryTitleActive: {
-    color: Colors.success,
-  },
-  categoryDesc: {
-    fontFamily: "Outfit_400Regular",
-    fontSize: fontScale(12),
-    color: Colors.textMuted,
-  },
-  categoryExample: {
-    fontFamily: "Outfit_500Medium",
-    fontSize: fontScale(12),
-    color: Colors.textSecondary,
-    marginTop: 2,
-  },
-  categoryCheck: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: Colors.success,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modeToggle: {
-    flexDirection: "row",
-    gap: 10,
-    backgroundColor: Colors.backgroundCard,
-    borderRadius: 14,
-    padding: 4,
-  },
-  modeButton: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 6,
-    paddingVertical: scale(12),
-    borderRadius: 11,
-  },
-  modeButtonActive: {
-    backgroundColor: Colors.surfaceLight,
-  },
-  modeButtonText: {
-    fontFamily: "Outfit_500Medium",
-    fontSize: fontScale(14),
-    color: Colors.textMuted,
-  },
-  modeButtonTextActive: {
-    color: Colors.white,
-  },
-  optionsRow: {
-    flexDirection: "row",
-    gap: 8,
-    flexWrap: "wrap",
-  },
-  optionChip: {
-    paddingHorizontal: scale(18),
-    paddingVertical: scale(10),
-    borderRadius: 20,
-    backgroundColor: Colors.backgroundCard,
-    borderWidth: 1.5,
-    borderColor: Colors.border,
-  },
-  optionChipActive: {
-    backgroundColor: Colors.secondary,
-    borderColor: Colors.secondaryLight,
-  },
-  optionChipText: {
-    fontFamily: "Outfit_600SemiBold",
-    fontSize: fontScale(14),
-    color: Colors.textMuted,
-  },
-  optionChipTextActive: {
-    color: Colors.accent,
-  },
-  bottomBar: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    paddingHorizontal: scale(20),
-    paddingTop: 12,
-    backgroundColor: "rgba(11, 22, 34, 0.95)",
-    maxWidth: maxContentWidth,
-    width: "100%",
-    alignSelf: "center",
-  },
-  startButton: {
-    borderRadius: 16,
-    overflow: "hidden",
-  },
-  startButtonPressed: {
-    opacity: 0.9,
-    transform: [{ scale: 0.98 }],
-  },
-  startButtonGradient: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: scale(10),
-    paddingVertical: scale(16),
-    borderRadius: 16,
-  },
-  startButtonText: {
-    fontFamily: "Outfit_700Bold",
-    fontSize: fontScale(18),
-    color: Colors.white,
-  },
+  screen: { flex: 1, backgroundColor: Colors.background },
+  scrollView: { flex: 1 },
+  content: { gap: scale(24), maxWidth: maxContentWidth, width: "100%", alignSelf: "center" },
+  heroSection: { alignItems: "center", paddingHorizontal: scale(20), paddingTop: scale(12), gap: scale(6) },
+  topRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%", marginBottom: scale(6) },
+  navButton: { width: scale(40), height: scale(40), borderRadius: scale(20), backgroundColor: Colors.backgroundCard, justifyContent: "center", alignItems: "center" },
+  iconRow: { flexDirection: "row", alignItems: "center" },
+  heroTitle: { fontFamily: "Outfit_800ExtraBold", fontSize: fontScale(34), color: Colors.text, letterSpacing: -0.5 },
+  heroSubtitle: { fontFamily: "Outfit_400Regular", fontSize: fontScale(15), color: Colors.textMuted },
+  section: { paddingHorizontal: scale(20), gap: scale(12) },
+  sectionTitle: { fontFamily: "Outfit_600SemiBold", fontSize: fontScale(16), color: Colors.textSecondary },
+  categoryList: { gap: 10 },
+  categoryCard: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", padding: scale(16), borderRadius: scale(14), backgroundColor: Colors.backgroundCard, borderWidth: 1.5, borderColor: Colors.border },
+  categoryCardActive: { borderColor: Colors.success, backgroundColor: "rgba(45, 198, 83, 0.06)" },
+  categoryLeft: { flexDirection: "row", alignItems: "center", gap: scale(14), flex: 1 },
+  categoryTextWrap: { flex: 1, gap: 2 },
+  categoryTitle: { fontFamily: "Outfit_700Bold", fontSize: fontScale(15), color: Colors.text },
+  categoryTitleActive: { color: Colors.success },
+  categoryDesc: { fontFamily: "Outfit_400Regular", fontSize: fontScale(12), color: Colors.textMuted },
+  categoryExample: { fontFamily: "Outfit_500Medium", fontSize: fontScale(12), color: Colors.textSecondary, marginTop: 2 },
+  categoryCheck: { width: 24, height: 24, borderRadius: 12, backgroundColor: Colors.success, justifyContent: "center", alignItems: "center" },
+  modeToggle: { flexDirection: "row", gap: 10, backgroundColor: Colors.backgroundCard, borderRadius: 14, padding: 4 },
+  modeButton: { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, paddingVertical: scale(12), borderRadius: 11 },
+  modeButtonActive: { backgroundColor: Colors.surfaceLight },
+  modeButtonText: { fontFamily: "Outfit_500Medium", fontSize: fontScale(14), color: Colors.textMuted },
+  modeButtonTextActive: { color: Colors.white },
+  optionsRow: { flexDirection: "row", gap: 8, flexWrap: "wrap" },
+  optionChip: { paddingHorizontal: scale(18), paddingVertical: scale(10), borderRadius: 20, backgroundColor: Colors.backgroundCard, borderWidth: 1.5, borderColor: Colors.border },
+  optionChipActive: { backgroundColor: Colors.secondary, borderColor: Colors.secondaryLight },
+  optionChipText: { fontFamily: "Outfit_600SemiBold", fontSize: fontScale(14), color: Colors.textMuted },
+  optionChipTextActive: { color: Colors.accent },
+  bottomBar: { position: "absolute", bottom: 0, left: 0, right: 0, paddingHorizontal: scale(20), paddingTop: 12, backgroundColor: "rgba(11, 22, 34, 0.95)", maxWidth: maxContentWidth, width: "100%", alignSelf: "center" },
+  startButton: { borderRadius: 16, overflow: "hidden" },
+  startButtonPressed: { opacity: 0.9, transform: [{ scale: 0.98 }] },
+  startButtonGradient: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: scale(10), paddingVertical: scale(16), borderRadius: 16 },
+  startButtonText: { fontFamily: "Outfit_700Bold", fontSize: fontScale(18), color: Colors.white },
 });
