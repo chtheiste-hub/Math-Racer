@@ -87,7 +87,7 @@ function MiniSparkline({ data }: { data: number[] }) {
 export default function HistoryScreen() {
   const insets = useSafeAreaInsets();
   const { slideStyle, animateOut } = useWebSlideTransition();
-  const { strings } = useTranslation();
+  const { strings, language } = useTranslation();
   const [statsByType, setStatsByType] = useState<Record<string, AllTimeStats>>({});
   const [allSessions, setAllSessions] = useState<SessionRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -177,7 +177,8 @@ export default function HistoryScreen() {
     if (diffHrs < 24) return t(strings, "hoursAgo", { count: diffHrs });
     const diffDays = Math.floor(diffHrs / 24);
     if (diffDays < 7) return t(strings, "daysAgo", { count: diffDays });
-    return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+    const locale = language === "no" ? "nb-NO" : "en-US";
+    return d.toLocaleDateString(locale, { month: "short", day: "numeric" });
   };
 
   const formatTime = (seconds: number) => {
