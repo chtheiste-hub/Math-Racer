@@ -1,7 +1,7 @@
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback, useState } from "react";
 import { Platform } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
@@ -57,11 +57,17 @@ export default function RootLayout() {
     Outfit_800ExtraBold,
   });
 
+  const [languageReady, setLanguageReady] = useState(false);
+
+  const handleLanguageReady = useCallback(() => {
+    setLanguageReady(true);
+  }, []);
+
   useEffect(() => {
-    if (fontsLoaded) {
+    if (fontsLoaded && languageReady) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded]);
+  }, [fontsLoaded, languageReady]);
 
   if (!fontsLoaded) return null;
 
@@ -70,7 +76,7 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <GestureHandlerRootView style={{ flex: 1 }}>
           <KeyboardProvider>
-            <LanguageProvider>
+            <LanguageProvider onReady={handleLanguageReady}>
               <StatusBar style="light" />
               <RootLayoutNav />
             </LanguageProvider>

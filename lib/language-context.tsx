@@ -15,7 +15,13 @@ const LanguageContext = createContext<LanguageContextValue>({
   isLoaded: false,
 });
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
+export function LanguageProvider({
+  children,
+  onReady,
+}: {
+  children: React.ReactNode;
+  onReady?: () => void;
+}) {
   const [language, setLang] = useState<Language>("no");
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -25,6 +31,12 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       setIsLoaded(true);
     });
   }, []);
+
+  useEffect(() => {
+    if (isLoaded && onReady) {
+      onReady();
+    }
+  }, [isLoaded]);
 
   const setLanguage = useCallback((lang: Language) => {
     setLang(lang);

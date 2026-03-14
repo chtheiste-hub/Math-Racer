@@ -150,6 +150,7 @@ export default function StartScreen() {
               onPress={toggleLanguage}
               style={styles.langButton}
             >
+              <Ionicons name="globe-outline" size={14} color={Colors.accent} style={{ marginBottom: -2 }} />
               <Text style={styles.langButtonText}>
                 {language === "no" ? "EN" : "NO"}
               </Text>
@@ -280,10 +281,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 1.5,
     borderColor: Colors.border,
+    gap: 1,
   },
   langButtonText: {
     fontFamily: "Outfit_700Bold",
-    fontSize: fontScale(12),
+    fontSize: fontScale(10),
     color: Colors.accent,
   },
   statsButton: {
