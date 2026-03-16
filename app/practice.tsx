@@ -40,7 +40,7 @@ function generateMultiplicationQuestion(tables: number[]): Question {
 }
 
 function generateDivisionQuestion(tables: number[]): Question {
-  const divisor = tables[Math.floor(Math.random() * tables.length)];
+  const divisor = Math.min(tables[Math.floor(Math.random() * tables.length)], 10);
   const quotient = Math.floor(Math.random() * 10) + 1;
   const dividend = divisor * quotient;
   return { a: dividend, b: divisor, answer: quotient };

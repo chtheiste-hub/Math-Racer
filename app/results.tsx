@@ -75,7 +75,7 @@ export default function ResultsScreen() {
   const tableBreakdown = useMemo(() => {
     const breakdown: Record<number, { correct: number; total: number }> = {};
     for (const r of parsedResults) {
-      const table = r.question.a;
+      const table = practiceType === "division" ? r.question.b : r.question.a;
       if (!breakdown[table]) breakdown[table] = { correct: 0, total: 0 };
       breakdown[table].total++;
       if (r.correct) breakdown[table].correct++;
