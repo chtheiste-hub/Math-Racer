@@ -371,7 +371,7 @@ export default function HistoryScreen() {
                         </View>
                         <View style={styles.tableStatsInfo}>
                           <View style={styles.tableStatsNameRow}>
-                            <Text style={styles.tableStatsName}>{practiceFilter === "addition" ? (ADDITION_CATEGORY_NAMES[item.table] || `${strings.categoryLabel} ${item.table}`) : practiceFilter === "subtraction" ? (SUBTRACTION_CATEGORY_NAMES[item.table] || `${strings.categoryLabel} ${item.table}`) : `${item.table}${tableOperator} ${strings.table}`}</Text>
+                            <Text style={styles.tableStatsName}>{practiceFilter === "addition" ? (ADDITION_CATEGORY_NAMES[item.table] || `${strings.categoryLabel} ${item.table}`) : practiceFilter === "subtraction" ? (SUBTRACTION_CATEGORY_NAMES[item.table] || `${strings.categoryLabel} ${item.table}`) : `${tableOperator}${item.table}`}</Text>
                             <TrendIcon trend={item.trend} />
                           </View>
                           <Text style={styles.tableStatsDetail}>

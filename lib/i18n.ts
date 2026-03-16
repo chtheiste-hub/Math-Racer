@@ -113,7 +113,6 @@ export interface Translations {
   history: string;
   all: string;
   correctSuffix: string;
-  table: string;
   categoryLabel: string;
   noTablesData: string;
   noCategoriesData: string;
@@ -166,8 +165,8 @@ const no: Translations = {
 
   addCat1Title: "Små tall",
   addCat1Desc: "Svarene er 10 eller mindre",
-  addCat2Title: "Opp til 10",
-  addCat2Desc: "Finn det manglende tallet for å få 10",
+  addCat2Title: "Tiervenner",
+  addCat2Desc: "Tall som til sammen gir 10",
   addCat3Title: "Over tiergrensen",
   addCat3Desc: "Ensifrede tall som krysser 10 (svar 11\u201319)",
   addCat4Title: "Over hele tiere",
@@ -178,9 +177,9 @@ const no: Translations = {
   subCat1Title: "Små tall",
   subCat1Desc: "Subtraksjon innenfor 10",
   subCat2Title: "Trekk fra 10",
-  subCat2Desc: "Trekk fra 10",
-  subCat3Title: "Over tiergrensen",
-  subCat3Desc: "Under 10 (start 11\u201319)",
+  subCat2Desc: "Resultatet er mellom 0 og 9",
+  subCat3Title: "Kryss tiergrensen",
+  subCat3Desc: "Resultatet under 10 (starter 11\u201319)",
   subCat4Title: "Over hele tiere",
   subCat4Desc: "Kryss en tiergrense nedover",
   subCat5Title: "Tosifrede tall",
@@ -221,7 +220,6 @@ const no: Translations = {
   history: "Historikk",
   all: "Alle",
   correctSuffix: "riktig",
-  table: "tabell",
   categoryLabel: "Kategori",
   noTablesData: "Ingen øvingsdata registrert for noen tabeller ennå",
   noCategoriesData: "Ingen øvingsdata registrert for noen kategorier ennå",
@@ -329,7 +327,6 @@ const en: Translations = {
   history: "History",
   all: "All",
   correctSuffix: "correct",
-  table: "Table",
   categoryLabel: "Category",
   noTablesData: "No practice data recorded yet for any tables",
   noCategoriesData: "No practice data recorded yet for any categories",
