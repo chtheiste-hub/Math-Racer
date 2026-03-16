@@ -53,36 +53,6 @@ function TrendIcon({ trend }: { trend: "improving" | "declining" | "stable" }) {
   return <Ionicons name="remove" size={14} color={Colors.textMuted} />;
 }
 
-function MiniSparkline({ data }: { data: number[] }) {
-  if (data.length < 2) return null;
-  const max = Math.max(...data, 100);
-  const min = Math.min(...data, 0);
-  const range = max - min || 1;
-  const height = 24;
-  const width = 60;
-  const step = width / (data.length - 1);
-
-  return (
-    <View style={{ width, height, flexDirection: "row", alignItems: "flex-end" }}>
-      {data.map((val, i) => {
-        const barHeight = Math.max(2, ((val - min) / range) * height);
-        const isLast = i === data.length - 1;
-        return (
-          <View
-            key={i}
-            style={{
-              width: Math.max(3, step - 2),
-              height: barHeight,
-              backgroundColor: isLast ? Colors.accent : Colors.surfaceLight,
-              borderRadius: 1.5,
-              marginRight: i < data.length - 1 ? 2 : 0,
-            }}
-          />
-        );
-      })}
-    </View>
-  );
-}
 
 export default function HistoryScreen() {
   const insets = useSafeAreaInsets();
@@ -352,8 +322,6 @@ export default function HistoryScreen() {
               <Animated.View entering={FadeInDown.delay(150)} style={styles.tablesSection}>
                 {weakTables.map((item) => {
                   const tableData = currentStats!.tables[item.table];
-                  const sparkData = tableData?.recentSessions.slice(-8).map((s) => s.percentage) || [];
-
                   return (
                     <View key={item.table} style={styles.tableStatsRow}>
                       <View style={styles.tableStatsLeft}>
@@ -380,7 +348,6 @@ export default function HistoryScreen() {
                         </View>
                       </View>
                       <View style={styles.tableStatsRight}>
-                        <MiniSparkline data={sparkData} />
                         <Text
                           style={[
                             styles.tableAccuracy,

@@ -120,7 +120,22 @@ function generateSubtractionQuestion(category: string): Question {
   }
 }
 
-function generateQuestion(tables: number[], practiceType: PracticeType, categoryOverride?: string): Question {
+function generateQuestion(tables: number[], practiceType: PracticeType, categoryOverride?: string, previousQuestion?: Question | null): Question {
+  for (let attempt = 0; attempt < 10; attempt++) {
+    let question: Question;
+    if (practiceType === "division") {
+      question = generateDivisionQuestion(tables);
+    } else if (practiceType === "addition") {
+      question = generateAdditionQuestion(categoryOverride || "1");
+    } else if (practiceType === "subtraction") {
+      question = generateSubtractionQuestion(categoryOverride || "1");
+    } else {
+      question = generateMultiplicationQuestion(tables);
+    }
+    if (!previousQuestion || question.a !== previousQuestion.a || question.b !== previousQuestion.b) {
+      return question;
+    }
+  }
   if (practiceType === "division") {
     return generateDivisionQuestion(tables);
   }
@@ -327,7 +342,7 @@ export default function PracticeScreen() {
       if (mode === "questions" && newTotal >= totalQuestions) {
         finishSession();
       } else {
-        setCurrentQuestion(generateQuestion(tables, practiceType, categoryOverride));
+        setCurrentQuestion((prev) => generateQuestion(tables, practiceType, categoryOverride, prev));
       }
     }, isCorrect ? 400 : 700);
   };
