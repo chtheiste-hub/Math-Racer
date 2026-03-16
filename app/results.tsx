@@ -344,7 +344,7 @@ export default function ResultsScreen() {
             pressed && { opacity: 0.8 },
           ]}
         >
-          <Ionicons name="grid" size={20} color={Colors.textSecondary} />
+          <Ionicons name="arrow-undo-outline" size={20} color={Colors.textSecondary} />
         </Pressable>
         <Pressable
           onPress={handlePlayAgain}
